@@ -42,6 +42,8 @@ interface BithumbResponse {
 
 export default function SectorDetail() {
   const [coinData, setCoinData] = useState<{ [key: string]: CoinData }>({})
+  const [previousPrices, setPreviousPrices] = useState<{ [key: string]: string }>({})
+  const [priceChanges, setPriceChanges] = useState<{ [key: string]: 'up' | 'down' | 'same' }>({})
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -64,9 +66,64 @@ export default function SectorDetail() {
       const data: BithumbResponse = await response.json()
 
       if (data.status === "0000" && data.data) {
-        const { date, ...coins } = data.data
-        setCoinData(coins)
+        const newData = data.data
+        
+        // 이전 가격과 비교하여 변동 상태 계산 및 당일 시가 대비 실시간 변동 계산
+        const newPriceChanges: { [key: string]: 'up' | 'down' | 'same' } = {}
+        const newRealTimeChanges: { [key: string]: string } = {}
+        const newRealTimeChangePercents: { [key: string]: string } = {}
+        
+        Object.keys(newData).forEach(symbol => {
+          const currentPrice = Number.parseFloat(newData[symbol].closing_price)
+          const openingPrice = Number.parseFloat(newData[symbol].opening_price)
+          const previousPrice = previousPrices[symbol]
+          
+          // 가격 변동 상태 (이전 API 호출 대비)
+          if (previousPrice) {
+            const previous = Number.parseFloat(previousPrice)
+            
+            if (currentPrice > previous) {
+              newPriceChanges[symbol] = 'up'
+            } else if (currentPrice < previous) {
+              newPriceChanges[symbol] = 'down'
+            } else {
+              newPriceChanges[symbol] = 'same'
+            }
+          } else {
+            newPriceChanges[symbol] = 'same'
+          }
+          
+          // 당일 시가 대비 실시간 변동량 및 변동률 계산
+          const dailyChange = currentPrice - openingPrice
+          const dailyChangePercent = openingPrice !== 0 ? (dailyChange / openingPrice) * 100 : 0
+          
+          newRealTimeChanges[symbol] = dailyChange.toFixed(0)
+          newRealTimeChangePercents[symbol] = dailyChangePercent.toFixed(2)
+        })
+        
+        // 이전 가격 상태 업데이트
+        const newPreviousPrices: { [key: string]: string } = {}
+        Object.keys(newData).forEach(symbol => {
+          newPreviousPrices[symbol] = newData[symbol].closing_price
+        })
+        
+        setCoinData(newData)
+        setPreviousPrices(newPreviousPrices)
+        setPriceChanges(newPriceChanges)
+        setRealTimeChanges(newRealTimeChanges)
+        setRealTimeChangePercents(newRealTimeChangePercents)
         setLastUpdate(new Date())
+        
+        // 3초 후 변동 표시 제거
+        setTimeout(() => {
+          setPriceChanges(prev => {
+            const reset: { [key: string]: 'up' | 'down' | 'same' } = {}
+            Object.keys(prev).forEach(symbol => {
+              reset[symbol] = 'same'
+            })
+            return reset
+          })
+        }, 3000)
       } else {
         throw new Error("API 응답 오류")
       }

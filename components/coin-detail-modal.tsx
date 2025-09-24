@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { coinDescriptions, blockchainInfo } from "@/lib/blockchain-info"
 import { getCoinSector, getSectorColor } from "@/lib/crypto-sectors"
@@ -42,6 +42,9 @@ export function CoinDetailModal({
               <BlockchainMarkers symbol={symbol} />
             </div>
           </DialogTitle>
+          <DialogDescription>
+            {symbol} 코인의 상세 정보와 현재 시세를 확인하세요.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

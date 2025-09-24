@@ -54,8 +54,7 @@ export default function SectorOverview() {
       const data: BithumbResponse = await response.json()
 
       if (data.status === "0000" && data.data) {
-        const { date, ...coins } = data.data
-        setCoinData(coins)
+        setCoinData(data.data)
         setLastUpdate(new Date())
       } else {
         throw new Error("API 응답 오류")

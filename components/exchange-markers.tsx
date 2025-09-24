@@ -27,7 +27,7 @@ export function ExchangeMarkers({
         variant="outline"
         className="text-xs px-1 py-0.5 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
       >
-        BA
+        Alpha
       </Badge>
     );
   }
@@ -39,7 +39,7 @@ export function ExchangeMarkers({
         variant="outline"
         className="text-xs px-1 py-0.5 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100"
       >
-        B
+        BN
       </Badge>
     );
   }
@@ -52,7 +52,7 @@ export function ExchangeMarkers({
         variant="outline"
         className="text-xs px-1 py-0.5 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
       >
-        UU
+        UPusdt
       </Badge>
     );
   }
@@ -64,7 +64,7 @@ export function ExchangeMarkers({
         variant="outline"
         className="text-xs px-1 py-0.5 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
       >
-        U
+        UP
       </Badge>
     );
   }
@@ -86,7 +86,7 @@ export function ExchangeMarkersLegend() {
           variant="outline"
           className="text-xs px-1 py-0.5 bg-orange-50 text-orange-700 border-orange-200"
         >
-          B
+          BN
         </Badge>
         <span>바이낸스</span>
       </div>
@@ -105,7 +105,7 @@ export function ExchangeMarkersLegend() {
           variant="outline"
           className="text-xs px-1 py-0.5 bg-purple-50 text-purple-700 border-purple-200"
         >
-          Upbit
+          Up
         </Badge>
         <span>업비트</span>
       </div>
@@ -114,7 +114,7 @@ export function ExchangeMarkersLegend() {
           variant="outline"
           className="text-xs px-1 py-0.5 bg-blue-50 text-blue-700 border-blue-200"
         >
-          UpbitUSDT
+          UpUSDT
         </Badge>
         <span className="hidden sm:inline">업비트 USDT</span>
         <span className="sm:hidden">UU</span>
