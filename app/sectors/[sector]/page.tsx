@@ -44,6 +44,8 @@ export default function SectorDetail() {
   const [coinData, setCoinData] = useState<{ [key: string]: CoinData }>({})
   const [previousPrices, setPreviousPrices] = useState<{ [key: string]: string }>({})
   const [priceChanges, setPriceChanges] = useState<{ [key: string]: 'up' | 'down' | 'same' }>({})
+  const [realTimeChanges, setRealTimeChanges] = useState<{ [key: string]: string }>({})
+  const [realTimeChangePercents, setRealTimeChangePercents] = useState<{ [key: string]: string }>({})
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
