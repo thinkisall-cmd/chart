@@ -474,12 +474,15 @@ export default function CryptoTracker() {
 
   const handleCoinClick = (symbol: string, data: CoinData) => {
     const koreanName = getKoreanName(symbol);
+    const realTimeChange = realTimeChanges[symbol] || data.fluctate_24H || "0";
+    const realTimeChangePercent = realTimeChangePercents[symbol] || data.fluctate_rate_24H || "0.00";
+
     setSelectedCoin({
       symbol,
       koreanName,
       price: formatPrice(getCurrentPrice(data).toString()),
-      change: formatPrice(data.fluctate_24H),
-      changePercent: data.fluctate_rate_24H,
+      change: formatPrice(realTimeChange),
+      changePercent: realTimeChangePercent,
     });
   };
 
