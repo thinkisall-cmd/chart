@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Analytics } from '@vercel/analytics/next'
+// import { Analytics } from '@vercel/analytics/next' // Static export doesn't support Vercel Analytics
 import Script from 'next/script'
 import './globals.css'
 
@@ -105,7 +105,7 @@ export default function RootLayout({
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         {children}
-        <Analytics />
+        {/* <Analytics /> Static export doesn't support Vercel Analytics */}
       </body>
     </html>
   )

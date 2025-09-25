@@ -1,10 +1,7 @@
 const CACHE_NAME = 'nextchart-v1.0.0';
 const STATIC_CACHE_URLS = [
   '/',
-  '/sectors',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
   // Core app shell files will be auto-added by Next.js
 ];
 
@@ -67,6 +64,13 @@ self.addEventListener('fetch', (event) => {
 
   // Skip Chrome extension requests
   if (url.protocol === 'chrome-extension:') {
+    return;
+  }
+
+  // Skip external scripts (Google AdSense, Vercel analytics, etc.)
+  if (url.hostname !== location.hostname &&
+      !url.hostname.includes('bithumb.com') &&
+      !url.hostname.includes('coinmarketcap.com')) {
     return;
   }
 

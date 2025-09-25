@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { BannerAd, ResponsiveAd } from "@/components/adsense";
+import AltcoinSeasonCard from "@/components/altcoin-season-card";
 import PWAInstaller from "@/components/pwa-installer";
 import ServiceWorkerRegistration from "@/components/service-worker-registration";
 
@@ -726,6 +727,9 @@ export default function CryptoTracker() {
             )}
           </CardContent>
         </Card>
+
+        {/* 알트코인 시즌 지수 */}
+        <AltcoinSeasonCard />
 
         {/* 광고 배너 */}
         <BannerAd className="my-6" />
