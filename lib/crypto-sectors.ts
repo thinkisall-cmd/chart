@@ -33,6 +33,9 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   XTER: "AI",
   TURBO: "AI",
   HOLO: "AI",
+  "0G": "AI",
+  THE: "AI",
+  COOKIE: "AI",
 
   // DeFi 섹터
   BARD: "DeFi",
@@ -91,6 +94,9 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   SWAP: "DeFi",
   SOFI: "DeFi",
   C98: "DeFi",
+  RESOLVE: "DeFi",
+  EUL: "DeFi",
+  KMNO: "DeFi",
 
   // GameFi-NFT 섹터
   AXS: "GameFi-NFT",
@@ -140,13 +146,21 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   LBL: "GameFi-NFT",
   LWAR: "GameFi-NFT",
   TAVA: "GameFi-NFT",
-
+  WNCG: "GameFi-NFT",
+  INIT: "GameFi-NFT",
+  LM: "GameFi-NFT",
+  LWA: "GameFi-NFT",
   // 거래소 섹터
   AVNT: "Exchange",
   DRIFT: "Exchange",
   F: "Exchange",
 
   // Infra 섹터
+  ZKC: "Infra",
+  ACX: "Infra",
+  B3T: "Infra",
+  DBR: "Infra",
+  KSM: "Infra",
   DKA: "Infra",
   FANC: "Infra",
   AZITA: "Infra",
@@ -208,6 +222,7 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   EVZ: "Infra", //
   OBSR: "Infra", //
   ELX: "Infra", //
+  PARTI: "Infra", //
 
   // DePIN 섹터
   RENDER: "DePIN",
@@ -358,6 +373,7 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   ERA: "L2",
   SOON: "L2",
   PROVE: "L2",
+  HEMI: "L2",
 
   // Meme 섹터
   DOGE: "Meme",
