@@ -9,33 +9,37 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // PWA 설정
-  async headers() {
-    return [
-      {
-        source: '/manifest.json',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/manifest+json',
-          },
-        ],
-      },
-      {
-        source: '/sw.js',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/javascript',
-          },
-          {
-            key: 'Service-Worker-Allowed',
-            value: '/',
-          },
-        ],
-      },
-    ]
-  },
+  // Cloudflare Pages 지원을 위한 설정
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
+  // PWA 설정 - static export에서는 headers가 지원되지 않음
+  // async headers() {
+  //   return [
+  //     {
+  //       source: '/manifest.json',
+  //       headers: [
+  //         {
+  //           key: 'Content-Type',
+  //           value: 'application/manifest+json',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       source: '/sw.js',
+  //       headers: [
+  //         {
+  //           key: 'Content-Type',
+  //           value: 'application/javascript',
+  //         },
+  //         {
+  //           key: 'Service-Worker-Allowed',
+  //           value: '/',
+  //         },
+  //       ],
+  //     },
+  //   ]
+  // },
   webpack: (config, { dev, isServer }) => {
     // webpack 모듈 로딩 이슈 해결
     if (dev && !isServer) {

@@ -1,0 +1,5 @@
+name = "nextchart2"
+compatibility_date = "2024-09-25"
+
+# Pages configuration for static files
+pages_build_output_dir = "out"
