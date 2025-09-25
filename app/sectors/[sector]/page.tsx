@@ -3,9 +3,21 @@ import SectorDetailClient from './SectorDetailClient'
 // Static params generation for static export
 export async function generateStaticParams() {
   const sectors = [
-    "DeFi", "GameFi", "NFT", "Layer 1", "Layer 2", "Meme", "AI",
-    "Storage", "Oracle", "Privacy", "Social", "Exchange Token",
-    "Stablecoin", "Wrapped Token", "Metaverse", "Web3"
+    "AI",
+    "DeFi",
+    "GameFi-NFT",
+    "Infra",
+    "DePIN",
+    "Korea-Payment",
+    "L1",
+    "L2",
+    "Meme",
+    "RWA",
+    "Social-DAO",
+    "Stablecoin",
+    "Exchange",
+    "Privacy",
+    "기타" // Default sector
   ];
 
   return sectors.map((sector) => ({

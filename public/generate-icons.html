@@ -1,74 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>다모아봄 PWA 아이콘 생성</title>
+    <title>NextChart PWA 아이콘 생성</title>
     <style>
         canvas { border: 1px solid #ccc; margin: 10px; }
         .icon-container { display: flex; flex-wrap: wrap; }
+        body { font-family: Arial, sans-serif; }
+        .info { margin: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px; }
     </style>
 </head>
 <body>
-    <h1>다모아봄 PWA 아이콘 생성</h1>
+    <h1>NextChart PWA 아이콘 생성</h1>
+    <div class="info">
+        <h3>사용법:</h3>
+        <p>1. 아래 각 아이콘의 "다운로드" 링크를 클릭해서 PNG 파일을 다운로드하세요.</p>
+        <p>2. 다운로드한 파일들을 <code>public/icons/</code> 폴더에 저장하세요.</p>
+        <p>3. 파일명이 정확히 <code>icon-72x72.png</code>, <code>icon-96x96.png</code> 등으로 되어있는지 확인하세요.</p>
+    </div>
     <div class="icon-container" id="iconContainer"></div>
-    
+
     <script>
         const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
         const container = document.getElementById('iconContainer');
-        
+
         sizes.forEach(size => {
             const canvas = document.createElement('canvas');
             canvas.width = size;
             canvas.height = size;
             canvas.id = `icon-${size}`;
-            
+
             const ctx = canvas.getContext('2d');
-            
+
             // 배경 (다크 네이비)
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, size, size);
-            
-            // 모서리 둥글게
-            const radius = size * 0.1;
-            ctx.beginPath();
-            ctx.roundRect(0, 0, size, size, radius);
-            ctx.clip();
-            
+
             // 차트 그래픽 그리기
             const centerX = size / 2;
             const centerY = size / 2;
             const barWidth = size * 0.08;
             const maxBarHeight = size * 0.4;
-            
-            // 막대 차트 그리기
+
+            // 막대 차트 그리기 (상승 트렌드)
             ctx.fillStyle = '#10b981';
             for (let i = 0; i < 5; i++) {
                 const x = centerX - (2.5 * barWidth) + (i * barWidth * 1.2);
-                const height = maxBarHeight * (0.3 + (i * 0.2));
+                const height = maxBarHeight * (0.3 + (i * 0.15));
                 const y = centerY + (maxBarHeight / 2) - height;
-                
+
                 ctx.fillRect(x, y, barWidth, height);
             }
-            
-            // 텍스트 추가 (크기에 따라 조정)
-            if (size >= 144) {
-                ctx.fillStyle = '#ffffff';
-                ctx.font = `bold ${size * 0.12}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.fillText('다모아봄', centerX, centerY - maxBarHeight * 0.7);
+
+            // 상승 화살표 그리기
+            if (size >= 128) {
+                ctx.fillStyle = '#22c55e';
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = size * 0.02;
+
+                const arrowSize = size * 0.15;
+                const arrowX = centerX + size * 0.2;
+                const arrowY = centerY - size * 0.1;
+
+                // 화살표 그리기
+                ctx.beginPath();
+                ctx.moveTo(arrowX, arrowY + arrowSize);
+                ctx.lineTo(arrowX, arrowY);
+                ctx.lineTo(arrowX + arrowSize, arrowY + arrowSize * 0.5);
+                ctx.moveTo(arrowX, arrowY);
+                ctx.lineTo(arrowX - arrowSize, arrowY + arrowSize * 0.5);
+                ctx.stroke();
             }
-            
+
+            // 텍스트 추가 (크기에 따라 조정)
+            if (size >= 192) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.08}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('NextChart', centerX, centerY + maxBarHeight * 0.8);
+            } else if (size >= 144) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.1}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('NC', centerX, centerY + maxBarHeight * 0.8);
+            }
+
             // 다운로드 링크 생성
             const link = document.createElement('a');
             link.download = `icon-${size}x${size}.png`;
             link.href = canvas.toDataURL();
             link.textContent = `${size}x${size} 다운로드`;
             link.style.display = 'block';
-            
+            link.style.margin = '10px';
+            link.style.textDecoration = 'none';
+            link.style.background = '#10b981';
+            link.style.color = 'white';
+            link.style.padding = '5px 10px';
+            link.style.borderRadius = '4px';
+
             const div = document.createElement('div');
+            div.style.textAlign = 'center';
             div.appendChild(canvas);
             div.appendChild(link);
             container.appendChild(div);
         });
+
+        // 한번에 모든 아이콘 다운로드
+        const downloadAllBtn = document.createElement('button');
+        downloadAllBtn.textContent = '모든 아이콘 다운로드 (ZIP)';
+        downloadAllBtn.style.margin = '20px';
+        downloadAllBtn.style.padding = '10px 20px';
+        downloadAllBtn.style.background = '#0f172a';
+        downloadAllBtn.style.color = 'white';
+        downloadAllBtn.style.border = 'none';
+        downloadAllBtn.style.borderRadius = '4px';
+        downloadAllBtn.style.cursor = 'pointer';
+        downloadAllBtn.onclick = () => {
+            alert('각 아이콘을 개별적으로 다운로드해주세요. 브라우저에서 다운로드한 파일들을 public/icons/ 폴더에 저장하세요.');
+        };
+
+        document.body.insertBefore(downloadAllBtn, container);
     </script>
 </body>
 </html>
