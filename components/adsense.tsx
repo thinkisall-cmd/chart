@@ -14,6 +14,11 @@ interface AdSenseProps {
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-3000971739024587"
 const ADSENSE_ENABLED = process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true"
 
+// 디버깅을 위한 로그
+console.log('ADSENSE_CLIENT_ID:', ADSENSE_CLIENT_ID)
+console.log('ADSENSE_ENABLED:', ADSENSE_ENABLED)
+console.log('NEXT_PUBLIC_ADSENSE_ENABLED:', process.env.NEXT_PUBLIC_ADSENSE_ENABLED)
+
 export default function AdSense({
   adSlot,
   adFormat = "auto",

@@ -86,6 +86,14 @@ export default function RootLayout({
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         
+        {/* RSS Feed */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="다모아봄 RSS Feed"
+          href="/rss.xml"
+        />
+
         {/* Google AdSense */}
         <Script
           async
