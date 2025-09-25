@@ -264,9 +264,11 @@ export const BINANCE_COINS = new Set([
   "ZK",
   "ZRO",
   "ZRX",
-])
+  "POPCAT",
+]);
 
 export const BINANCE_ALPHA_COINS = new Set([
+  "BTR",
   "MERL",
   "AVNT",
   "AERO",
@@ -305,25 +307,25 @@ export const BINANCE_ALPHA_COINS = new Set([
   "XTER",
   "ZETA",
   "ZRC",
-])
+]);
 
 /**
  * 바이낸스에서 거래 가능한 코인인지 확인
  */
 export function isBinanceCoin(symbol: string): boolean {
-  return BINANCE_COINS.has(symbol)
+  return BINANCE_COINS.has(symbol);
 }
 
 /**
  * 바이낸스 알파 코인인지 확인
  */
 export function isBinanceAlphaCoin(symbol: string): boolean {
-  return BINANCE_ALPHA_COINS.has(symbol)
+  return BINANCE_ALPHA_COINS.has(symbol);
 }
 
 /**
  * 바이낸스 심볼 생성 (USDT 페어)
  */
 export function getBinanceSymbol(symbol: string): string | null {
-  return isBinanceCoin(symbol) ? `${symbol}USDT` : null
+  return isBinanceCoin(symbol) ? `${symbol}USDT` : null;
 }

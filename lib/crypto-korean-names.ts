@@ -192,6 +192,8 @@ export const CRYPTO_KOREAN_NAMES: { [key: string]: string } = {
   NEIRO: "네이로",
   SPX: "SPX6900",
   FARTCOIN: "파트코인",
+  BTR: "비트레이어",
+  POPCAT: "팝캣",
 
   // 추가 누락된 주요 코인들
   WAXP: "왁스",

@@ -12,12 +12,15 @@ interface AdSenseProps {
 }
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-3000971739024587"
-const ADSENSE_ENABLED = process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true"
+// 프로덕션에서는 항상 활성화, 개발에서는 환경변수 확인
+const ADSENSE_ENABLED = process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true"
 
-// 디버깅을 위한 로그
-console.log('ADSENSE_CLIENT_ID:', ADSENSE_CLIENT_ID)
-console.log('ADSENSE_ENABLED:', ADSENSE_ENABLED)
-console.log('NEXT_PUBLIC_ADSENSE_ENABLED:', process.env.NEXT_PUBLIC_ADSENSE_ENABLED)
+// 디버깅을 위한 로그 (컴포넌트 로드 시점에만)
+if (typeof window !== 'undefined') {
+  console.log('ADSENSE_CLIENT_ID:', ADSENSE_CLIENT_ID)
+  console.log('ADSENSE_ENABLED:', ADSENSE_ENABLED)
+  console.log('NEXT_PUBLIC_ADSENSE_ENABLED:', process.env.NEXT_PUBLIC_ADSENSE_ENABLED)
+}
 
 export default function AdSense({
   adSlot,
@@ -29,16 +32,23 @@ export default function AdSense({
 }: AdSenseProps) {
   useEffect(() => {
     if (!ADSENSE_ENABLED) return
-    
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({})
-    } catch (error) {
-      console.error('AdSense error:', error)
+
+    // 광고를 로드하는 함수
+    const loadAd = () => {
+      try {
+        // @ts-ignore
+        (window.adsbygoogle = window.adsbygoogle || []).push({})
+      } catch (error) {
+        console.error('AdSense error:', error)
+      }
     }
+
+    // 페이지 로드 후 약간의 지연을 두고 광고 로드
+    const timer = setTimeout(loadAd, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
-  // 개발 환경에서 AdSense가 비활성화된 경우 플레이스홀더 표시
+  // ADSENSE_ENABLED가 false인 경우에만 플레이스홀더 표시
   if (!ADSENSE_ENABLED) {
     return (
       <div 
