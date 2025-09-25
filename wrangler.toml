@@ -1,5 +1,6 @@
+# Cloudflare Pages configuration
+# This file is used for local development and configuration reference
+# For actual deployment, use: wrangler pages deploy out
+
 name = "nextchart2"
 compatibility_date = "2024-09-25"
-
-# Pages configuration for static files
-pages_build_output_dir = "out"
