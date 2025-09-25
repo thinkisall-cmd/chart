@@ -12,7 +12,6 @@ export default function ServiceWorkerRegistration() {
             scope: "/",
           })
           .then((registration) => {
-            console.log("SW registered: ", registration);
 
             // 업데이트 확인
             registration.addEventListener("updatefound", () => {
@@ -22,9 +21,6 @@ export default function ServiceWorkerRegistration() {
                   if (newWorker.state === "installed") {
                     if (navigator.serviceWorker.controller) {
                       // 새로운 콘텐츠가 사용 가능함을 사용자에게 알림
-                      console.log(
-                        "새로운 콘텐츠가 사용 가능합니다. 페이지를 새로고침하세요."
-                      );
 
                       // 선택적: 자동으로 페이지 새로고침
                       if (
@@ -35,9 +31,7 @@ export default function ServiceWorkerRegistration() {
                         window.location.reload();
                       }
                     } else {
-                      console.log(
-                        "콘텐츠가 오프라인에서 사용하기 위해 캐시되었습니다."
-                      );
+                      // 콘텐츠가 오프라인 사용을 위해 캐시됨
                     }
                   }
                 });
@@ -58,7 +52,6 @@ export default function ServiceWorkerRegistration() {
 
       // 온라인/오프라인 상태 모니터링
       const handleOnline = () => {
-        console.log("온라인 상태로 변경됨");
         // 백그라운드 동기화 요청
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.ready
@@ -73,7 +66,7 @@ export default function ServiceWorkerRegistration() {
       };
 
       const handleOffline = () => {
-        console.log("오프라인 상태로 변경됨");
+        // 오프라인 상태로 변경됨
       };
 
       window.addEventListener("online", handleOnline);

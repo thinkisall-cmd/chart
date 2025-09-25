@@ -30,6 +30,8 @@ import { BannerAd, ResponsiveAd } from "@/components/adsense";
 import AltcoinSeasonCard from "@/components/altcoin-season-card";
 import PWAInstaller from "@/components/pwa-installer";
 import ServiceWorkerRegistration from "@/components/service-worker-registration";
+import SectorsPreview from "@/components/sectors-preview";
+import ExchangeVolatility from "@/components/exchange-volatility";
 
 // Safe imports with fallbacks
 let CRYPTO_KOREAN_NAMES: any = {};
@@ -286,33 +288,17 @@ export default function CryptoTracker() {
                 if (currentPrice > previous) {
                   newPriceChanges[symbol] = "up";
                   changeCount++;
-                  console.log(
-                    `🔺 ${symbol}: ${previous.toLocaleString()} → ${currentPrice.toLocaleString()} (상승 +${(
-                      currentPrice - previous
-                    ).toLocaleString()})`
-                  );
                 } else if (currentPrice < previous) {
                   newPriceChanges[symbol] = "down";
                   changeCount++;
-                  console.log(
-                    `🔻 ${symbol}: ${previous.toLocaleString()} → ${currentPrice.toLocaleString()} (하락 ${(
-                      currentPrice - previous
-                    ).toLocaleString()})`
-                  );
                 } else {
                   // 가격은 같지만 다른 데이터가 변했으면 깜빡임
                   newPriceChanges[symbol] = Math.random() > 0.5 ? "up" : "down";
                   changeCount++;
-                  console.log(
-                    `🔄 ${symbol}: 데이터 업데이트 (가격 동일 ${currentPrice.toLocaleString()})`
-                  );
                 }
               } else {
                 newPriceChanges[symbol] = "up"; // 첫 로드는 상승으로 표시
                 changeCount++;
-                console.log(
-                  `⭐ ${symbol}: 첫 로드 ${currentPrice.toLocaleString()}`
-                );
               }
             } else {
               newPriceChanges[symbol] = "same";
@@ -366,16 +352,9 @@ export default function CryptoTracker() {
           setLastUpdate(new Date());
           setLoading(false);
 
-          console.log(`✨ UI 강제 업데이트 #${forceUpdate + 1}`);
-          if (changeCount > 0) {
-            console.log(`💥 ${changeCount}개 코인에 시각 효과 적용`);
-          } else {
-            console.log(`⚠️ 변동 없음 - 강제로 일부 효과 적용`);
-          }
 
           // 2초 후 변동 표시 제거 (더 빠르게)
           setTimeout(() => {
-            console.log(`🔄 시각 효과 초기화`);
             setPriceChanges((prev) => {
               const reset: { [key: string]: "up" | "down" | "same" } = {};
               Object.keys(prev).forEach((symbol) => {
@@ -731,10 +710,24 @@ export default function CryptoTracker() {
         {/* 알트코인 시즌 지수 */}
         <AltcoinSeasonCard />
 
+        {/* 거래소별 변동률 */}
+        <ExchangeVolatility
+          coinData={coinData}
+          realTimeChangePercents={realTimeChangePercents}
+          loading={loading}
+        />
+
         {/* 광고 배너 */}
         <BannerAd className="my-6" />
 
-        <div className="space-y-6">
+        {/* 섹터 요약 */}
+        <SectorsPreview
+          coinData={coinData}
+          realTimeChangePercents={realTimeChangePercents}
+          loading={loading}
+        />
+
+        <div className="space-y-6 mt-6">
           {/* Desktop Table View */}
           <div className="hidden lg:block">
             <Card>

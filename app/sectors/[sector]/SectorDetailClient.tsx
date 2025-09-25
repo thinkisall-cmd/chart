@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { RefreshCw, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react"
 import {
   groupCoinsBySector,
-  calculateSectorStats,
+  calculateSectorStatsWithRealTime,
   MAIN_SECTORS,
   getCoinSector,
   getSectorColor,
@@ -74,37 +74,77 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
         const newRealTimeChangePercents: { [key: string]: string } = {}
 
         Object.keys(newData).forEach(symbol => {
-          const currentPrice = Number.parseFloat(newData[symbol].closing_price)
-          const openingPrice = Number.parseFloat(newData[symbol].opening_price)
-          const previousPrice = previousPrices[symbol]
+          if (symbol === "date") return; // date 필드 제외
 
-          // 가격 변동 상태 (이전 API 호출 대비)
-          if (previousPrice) {
-            const previous = Number.parseFloat(previousPrice)
+          const data = newData[symbol];
 
-            if (currentPrice > previous) {
-              newPriceChanges[symbol] = 'up'
-            } else if (currentPrice < previous) {
-              newPriceChanges[symbol] = 'down'
+          // closing_price가 0이면 prev_closing_price 사용 (빗썸 12시 초기화 대응)
+          const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+          const previousPrice = previousPrices[symbol];
+
+          // 강제로 변화 감지하기 위해 더 민감한 비교
+          const hasDataChanged =
+            !previousPrice ||
+            currentPrice !== Number.parseFloat(previousPrice) ||
+            data.fluctate_24H !== (coinData[symbol]?.fluctate_24H || "") ||
+            data.fluctate_rate_24H !== (coinData[symbol]?.fluctate_rate_24H || "");
+
+          if (hasDataChanged) {
+            // 가격 변동 상태 (이전 호출 대비)
+            if (previousPrice) {
+              const previous = Number.parseFloat(previousPrice);
+
+              if (currentPrice > previous) {
+                newPriceChanges[symbol] = "up";
+              } else if (currentPrice < previous) {
+                newPriceChanges[symbol] = "down";
+              } else {
+                // 가격은 같지만 다른 데이터가 변했으면 깜빡임
+                newPriceChanges[symbol] = Math.random() > 0.5 ? "up" : "down";
+              }
             } else {
-              newPriceChanges[symbol] = 'same'
+              newPriceChanges[symbol] = "up"; // 첫 로드는 상승으로 표시
             }
           } else {
-            newPriceChanges[symbol] = 'same'
+            newPriceChanges[symbol] = "same";
           }
 
-          // 당일 시가 대비 실시간 변동량 및 변동률 계산
-          const dailyChange = currentPrice - openingPrice
-          const dailyChangePercent = openingPrice !== 0 ? (dailyChange / openingPrice) * 100 : 0
+          // 12시 초기화 체크 (한국 시간 기준)
+          const now = new Date();
+          const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+          const currentHour = koreaTime.getHours();
+          const currentMinute = koreaTime.getMinutes();
 
-          newRealTimeChanges[symbol] = dailyChange.toFixed(0)
-          newRealTimeChangePercents[symbol] = dailyChangePercent.toFixed(2)
+          // 자정 직후 5분간은 변동률을 0으로 강제 설정 (빗썸 초기화 시간 고려)
+          const isAfterMidnight = currentHour === 0 && currentMinute < 5;
+
+          // 실제 변동률 직접 계산 (빗썸 초기화 이슈 해결)
+          const openingPrice = Number.parseFloat(data.opening_price) || Number.parseFloat(data.prev_closing_price);
+          const actualChange = currentPrice - openingPrice;
+          const actualChangePercent = openingPrice > 0 ? ((actualChange / openingPrice) * 100) : 0;
+
+          if (isAfterMidnight || (Number.parseFloat(data.opening_price) === 0 && Number.parseFloat(data.closing_price) === 0)) {
+            // 자정 직후이거나 데이터가 초기화된 상태
+            newRealTimeChanges[symbol] = "0";
+            newRealTimeChangePercents[symbol] = "0.00";
+          } else if (openingPrice > 0 && currentPrice > 0) {
+            // 정상적인 데이터가 있을 때는 직접 계산한 값 사용
+            newRealTimeChanges[symbol] = actualChange.toString();
+            newRealTimeChangePercents[symbol] = actualChangePercent.toFixed(2);
+          } else {
+            // 계산할 수 없는 경우 API 값 사용
+            newRealTimeChanges[symbol] = data.fluctate_24H || "0";
+            newRealTimeChangePercents[symbol] = data.fluctate_rate_24H || "0.00";
+          }
         })
 
         // 이전 가격 상태 업데이트
         const newPreviousPrices: { [key: string]: string } = {}
         Object.keys(newData).forEach(symbol => {
-          newPreviousPrices[symbol] = newData[symbol].closing_price
+          if (symbol === "date") return; // date 필드 제외
+          const data = newData[symbol];
+          const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+          newPreviousPrices[symbol] = currentPrice.toString();
         })
 
         setCoinData(newData)
@@ -167,14 +207,20 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
   }
 
   const sectorGroups = groupCoinsBySector(coinData)
-  const sectorStats = calculateSectorStats(sectorGroups)
+  const sectorStats = calculateSectorStatsWithRealTime(sectorGroups, realTimeChangePercents)
   const sectorCoins = sectorGroups[sectorName] || []
   const sectorStat = sectorStats[sectorName]
 
-  // Sort coins by change rate (highest first)
-  const sortedCoins = sectorCoins.sort(
-    (a, b) => Number.parseFloat(b.data.fluctate_rate_24H) - Number.parseFloat(a.data.fluctate_rate_24H),
-  )
+  // Sort coins by real-time change rate (highest first)
+  const sortedCoins = sectorCoins.sort((a, b) => {
+    const changeA = realTimeChangePercents[a.symbol] ?
+      Number.parseFloat(realTimeChangePercents[a.symbol]) :
+      Number.parseFloat(a.data.fluctate_rate_24H);
+    const changeB = realTimeChangePercents[b.symbol] ?
+      Number.parseFloat(realTimeChangePercents[b.symbol]) :
+      Number.parseFloat(b.data.fluctate_rate_24H);
+    return changeB - changeA;
+  })
 
   // Pagination
   const totalPages = Math.ceil(sortedCoins.length / coinsPerPage)
@@ -194,12 +240,16 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
 
   const handleCoinClick = (symbol: string, data: CoinData) => {
     const koreanName = getKoreanName(symbol)
+    const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+    const realTimeChange = realTimeChanges[symbol] || data.fluctate_24H || "0";
+    const realTimeChangePercent = realTimeChangePercents[symbol] || data.fluctate_rate_24H || "0.00";
+
     setSelectedCoin({
       symbol,
       koreanName,
-      price: formatPrice(data.closing_price),
-      change: formatPrice(data.fluctate_24H),
-      changePercent: data.fluctate_rate_24H,
+      price: formatPrice(currentPrice.toString()),
+      change: formatPrice(realTimeChange),
+      changePercent: realTimeChangePercent,
     })
   }
 
@@ -356,10 +406,15 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
         {/* Coins Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
           {currentCoins.map(({ symbol, data }) => {
-            const changeRate = Number.parseFloat(data.fluctate_rate_24H)
+            const changeRate = realTimeChangePercents[symbol] ?
+              Number.parseFloat(realTimeChangePercents[symbol]) :
+              Number.parseFloat(data.fluctate_rate_24H);
             const volume = Number.parseFloat(data.acc_trade_value_24H)
             const sector = getCoinSector(symbol)
             const sectorColorClass = getSectorColor(sector)
+
+            // 현재가 계산 (12시 리셋 대응)
+            const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
 
             return (
               <Card
@@ -393,7 +448,7 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
                     </Badge>
                   </div>
                   <div className="space-y-1">
-                    <div className="text-sm sm:text-base font-bold">₩{formatPrice(data.closing_price)}</div>
+                    <div className="text-sm sm:text-base font-bold">₩{formatPrice(currentPrice.toString())}</div>
                     <div className="text-xs text-muted-foreground">거래량: {formatVolume(volume)}</div>
                     <div className="text-xs text-muted-foreground">고가: ₩{formatPrice(data.max_price)}</div>
                     <div className="text-xs text-muted-foreground">저가: ₩{formatPrice(data.min_price)}</div>

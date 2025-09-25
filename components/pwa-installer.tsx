@@ -31,7 +31,6 @@ export default function PWAInstaller() {
     }
 
     const handleAppInstalled = () => {
-      console.log('PWA가 설치되었습니다')
       setIsInstalled(true)
       setShowInstallBanner(false)
       localStorage.removeItem('pwa-install-dismissed')
@@ -63,9 +62,9 @@ export default function PWAInstaller() {
       const { outcome } = await deferredPrompt.userChoice
       
       if (outcome === 'accepted') {
-        console.log('사용자가 PWA 설치를 수락했습니다')
+        // PWA 설치 수락됨
       } else {
-        console.log('사용자가 PWA 설치를 거부했습니다')
+        // PWA 설치 거부됨
       }
     } catch (error) {
       console.error('PWA 설치 중 오류 발생:', error)

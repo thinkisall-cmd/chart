@@ -163,7 +163,7 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   KSM: "Infra",
   DKA: "Infra",
   FANC: "Infra",
-  AZITA: "Infra",
+  AZIT: "Infra",
   GRT: "Infra",
   ANKR: "Infra",
   RAD: "Infra",
@@ -223,6 +223,17 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   OBSR: "Infra", //
   ELX: "Infra", //
   PARTI: "Infra", //
+  CRTS: "DeFi", // Credits Protocol - DeFi
+  AL: "AI", // Alethea AI - AI
+  AHT: "Infra", // Ahab - Infrastructure
+  A: "DeFi", // Alpha Finance - DeFi
+  B3: "Infra", // B3 - Infrastructure
+  BIO: "RWA", // BIO Protocol - RWA
+  BTR: "DeFi", // Bitrue Token - L1
+  GRS: "Privacy", // Groestlcoin - Privacy
+  RESOLV: "DeFi", // Resolve Protocol - DeFi
+  RVN: "L1", // Ravencoin - L1
+  WCT: "Exchange", // Waves Community Token - Exchange
 
   // DePIN 섹터
   RENDER: "DePIN",
@@ -566,6 +577,73 @@ export const calculateSectorStats = (sectorGroups: {
               change: Number.parseFloat(
                 sortedByChange[sortedByChange.length - 1].data.fluctate_rate_24H
               ),
+            }
+          : null,
+    };
+  });
+
+  return sectorStats;
+};
+
+// 실시간 변동률을 사용하는 섹터별 통계 계산 함수
+export const calculateSectorStatsWithRealTime = (
+  sectorGroups: { [sector: string]: { symbol: string; data: any }[] },
+  realTimeChangePercents: { [key: string]: string }
+) => {
+  const sectorStats: {
+    [sector: string]: {
+      count: number;
+      avgChange: number;
+      totalVolume: number;
+      positiveCount: number;
+      negativeCount: number;
+      topGainer: { symbol: string; change: number } | null;
+      topLoser: { symbol: string; change: number } | null;
+    };
+  } = {};
+
+  Object.entries(sectorGroups).forEach(([sector, coins]) => {
+    const changes = coins.map((coin) => {
+      const realTimeChange = realTimeChangePercents[coin.symbol];
+      return realTimeChange ? Number.parseFloat(realTimeChange) : Number.parseFloat(coin.data.fluctate_rate_24H);
+    });
+    const volumes = coins.map((coin) =>
+      Number.parseFloat(coin.data.units_traded_24H)
+    );
+
+    const avgChange =
+      changes.reduce((sum, change) => sum + change, 0) / changes.length;
+    const totalVolume = volumes.reduce((sum, volume) => sum + volume, 0);
+    const positiveCount = changes.filter((change) => change > 0).length;
+    const negativeCount = changes.filter((change) => change < 0).length;
+
+    const coinsWithRealTimeChange = coins.map((coin, index) => ({
+      ...coin,
+      realTimeChange: changes[index]
+    }));
+
+    const sortedByChange = coinsWithRealTimeChange.sort(
+      (a, b) => b.realTimeChange - a.realTimeChange
+    );
+
+    sectorStats[sector] = {
+      count: coins.length,
+      avgChange,
+      totalVolume,
+      positiveCount,
+      negativeCount,
+      topGainer:
+        sortedByChange.length > 0
+          ? {
+              symbol: sortedByChange[0].symbol,
+              change: sortedByChange[0].realTimeChange,
+            }
+          : null,
+      topLoser:
+        sortedByChange.length > 0
+          ? {
+              symbol: sortedByChange[sortedByChange.length - 1].symbol,
+              change: sortedByChange[sortedByChange.length - 1].realTimeChange,
             }
           : null,
     };

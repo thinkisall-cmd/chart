@@ -16,7 +16,6 @@ export function useBithumbWebSocket(symbols = []) {
       wsRef.current = websocket;
 
       websocket.onopen = () => {
-        console.log('빗썸 WebSocket 연결됨');
         setIsConnected(true);
         setError(null);
         reconnectCountRef.current = 0;
@@ -59,13 +58,11 @@ export function useBithumbWebSocket(symbols = []) {
       };
 
       websocket.onclose = (event) => {
-        console.log('WebSocket 연결 종료:', event.code, event.reason);
         setIsConnected(false);
         
         // 자동 재연결
         if (reconnectCountRef.current < maxReconnectAttempts) {
           reconnectCountRef.current++;
-          console.log(`재연결 시도 ${reconnectCountRef.current}/${maxReconnectAttempts}`);
           
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
@@ -88,7 +85,6 @@ export function useBithumbWebSocket(symbols = []) {
 
   useEffect(() => {
     if (symbols.length > 0) {
-      console.log('WebSocket 연결 시도, 코인 개수:', symbols.length);
       connect();
     }
 

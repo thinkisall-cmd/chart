@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Users, ChevronRight, Activity } from "lucide-react"
-import { groupCoinsBySector, calculateSectorStats, MAIN_SECTORS } from "@/lib/crypto-sectors"
+import { groupCoinsBySector, calculateSectorStatsWithRealTime, MAIN_SECTORS } from "@/lib/crypto-sectors"
 import { useRouter } from "next/navigation"
 import { BannerAd, SquareAd } from "@/components/adsense"
 
@@ -62,37 +62,77 @@ export default function SectorOverview() {
         const newRealTimeChangePercents: { [key: string]: string } = {}
         
         Object.keys(newData).forEach(symbol => {
-          const currentPrice = Number.parseFloat(newData[symbol].closing_price)
-          const openingPrice = Number.parseFloat(newData[symbol].opening_price)
-          const previousPrice = previousPrices[symbol]
-          
-          // 가격 변동 상태 (이전 API 호출 대비)
-          if (previousPrice) {
-            const previous = Number.parseFloat(previousPrice)
-            
-            if (currentPrice > previous) {
-              newPriceChanges[symbol] = 'up'
-            } else if (currentPrice < previous) {
-              newPriceChanges[symbol] = 'down'
+          if (symbol === "date") return; // date 필드 제외
+
+          const data = newData[symbol];
+
+          // closing_price가 0이면 prev_closing_price 사용 (빗썸 12시 초기화 대응)
+          const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+          const previousPrice = previousPrices[symbol];
+
+          // 강제로 변화 감지하기 위해 더 민감한 비교
+          const hasDataChanged =
+            !previousPrice ||
+            currentPrice !== Number.parseFloat(previousPrice) ||
+            data.fluctate_24H !== (coinData[symbol]?.fluctate_24H || "") ||
+            data.fluctate_rate_24H !== (coinData[symbol]?.fluctate_rate_24H || "");
+
+          if (hasDataChanged) {
+            // 가격 변동 상태 (이전 호출 대비)
+            if (previousPrice) {
+              const previous = Number.parseFloat(previousPrice);
+
+              if (currentPrice > previous) {
+                newPriceChanges[symbol] = "up";
+              } else if (currentPrice < previous) {
+                newPriceChanges[symbol] = "down";
+              } else {
+                // 가격은 같지만 다른 데이터가 변했으면 깜빡임
+                newPriceChanges[symbol] = Math.random() > 0.5 ? "up" : "down";
+              }
             } else {
-              newPriceChanges[symbol] = 'same'
+              newPriceChanges[symbol] = "up"; // 첫 로드는 상승으로 표시
             }
           } else {
-            newPriceChanges[symbol] = 'same'
+            newPriceChanges[symbol] = "same";
           }
-          
-          // 당일 시가 대비 실시간 변동량 및 변동률 계산
-          const dailyChange = currentPrice - openingPrice
-          const dailyChangePercent = openingPrice !== 0 ? (dailyChange / openingPrice) * 100 : 0
-          
-          newRealTimeChanges[symbol] = dailyChange.toFixed(0)
-          newRealTimeChangePercents[symbol] = dailyChangePercent.toFixed(2)
+
+          // 12시 초기화 체크 (한국 시간 기준)
+          const now = new Date();
+          const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+          const currentHour = koreaTime.getHours();
+          const currentMinute = koreaTime.getMinutes();
+
+          // 자정 직후 5분간은 변동률을 0으로 강제 설정 (빗썸 초기화 시간 고려)
+          const isAfterMidnight = currentHour === 0 && currentMinute < 5;
+
+          // 실제 변동률 직접 계산 (빗썸 초기화 이슈 해결)
+          const openingPrice = Number.parseFloat(data.opening_price) || Number.parseFloat(data.prev_closing_price);
+          const actualChange = currentPrice - openingPrice;
+          const actualChangePercent = openingPrice > 0 ? ((actualChange / openingPrice) * 100) : 0;
+
+          if (isAfterMidnight || (Number.parseFloat(data.opening_price) === 0 && Number.parseFloat(data.closing_price) === 0)) {
+            // 자정 직후이거나 데이터가 초기화된 상태
+            newRealTimeChanges[symbol] = "0";
+            newRealTimeChangePercents[symbol] = "0.00";
+          } else if (openingPrice > 0 && currentPrice > 0) {
+            // 정상적인 데이터가 있을 때는 직접 계산한 값 사용
+            newRealTimeChanges[symbol] = actualChange.toString();
+            newRealTimeChangePercents[symbol] = actualChangePercent.toFixed(2);
+          } else {
+            // 계산할 수 없는 경우 API 값 사용
+            newRealTimeChanges[symbol] = data.fluctate_24H || "0";
+            newRealTimeChangePercents[symbol] = data.fluctate_rate_24H || "0.00";
+          }
         })
         
         // 이전 가격 상태 업데이트
         const newPreviousPrices: { [key: string]: string } = {}
         Object.keys(newData).forEach(symbol => {
-          newPreviousPrices[symbol] = newData[symbol].closing_price
+          if (symbol === "date") return; // date 필드 제외
+          const data = newData[symbol];
+          const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+          newPreviousPrices[symbol] = currentPrice.toString();
         })
         
         setCoinData(newData)
@@ -146,7 +186,7 @@ export default function SectorOverview() {
   }
 
   const sectorGroups = groupCoinsBySector(coinData)
-  const sectorStats = calculateSectorStats(sectorGroups)
+  const sectorStats = calculateSectorStatsWithRealTime(sectorGroups, realTimeChangePercents)
   
   const sortedSectors = Object.entries(sectorStats).sort(([sectorA, a], [sectorB, b]) => {
     const isMainSectorA = MAIN_SECTORS.includes(sectorA)

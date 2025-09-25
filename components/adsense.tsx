@@ -15,12 +15,6 @@ const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-3
 // 프로덕션에서는 항상 활성화, 개발에서는 환경변수 확인
 const ADSENSE_ENABLED = process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true"
 
-// 디버깅을 위한 로그 (컴포넌트 로드 시점에만)
-if (typeof window !== 'undefined') {
-  console.log('ADSENSE_CLIENT_ID:', ADSENSE_CLIENT_ID)
-  console.log('ADSENSE_ENABLED:', ADSENSE_ENABLED)
-  console.log('NEXT_PUBLIC_ADSENSE_ENABLED:', process.env.NEXT_PUBLIC_ADSENSE_ENABLED)
-}
 
 export default function AdSense({
   adSlot,
