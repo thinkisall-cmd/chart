@@ -9,10 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Cloudflare Pages 지원을 위한 설정
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
   // PWA 설정 - static export에서는 headers가 지원되지 않음
   // async headers() {
   //   return [

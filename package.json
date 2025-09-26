@@ -9,7 +9,8 @@
     "start": "next start",
     "export": "next build",
     "deploy": "wrangler pages deploy out --project-name nextchart2",
-    "cf-deploy": "npm run export && wrangler pages deploy out --project-name nextchart2"
+    "cf-deploy": "npm run export && wrangler pages deploy out --project-name nextchart2",
+    "netlify-build": "next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
