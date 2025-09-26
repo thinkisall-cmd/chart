@@ -26,6 +26,7 @@ export const UPBIT_COINS = new Set([
   "API3",
   "APT",
   "AQT",
+  "FLUID",
   "ARB",
   "ARDR",
   "ARK",

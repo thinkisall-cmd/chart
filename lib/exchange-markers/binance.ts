@@ -307,6 +307,9 @@ export const BINANCE_ALPHA_COINS = new Set([
   "XTER",
   "ZETA",
   "ZRC",
+  "MIRA",
+  "CUDIS",
+  "FLUID",
 ]);
 
 /**

@@ -306,7 +306,7 @@ export const blockchainInfo: Record<string, string> = {
   ZK: "이더리움 (ERC-20)",
   ZRO: "이더리움 (ERC-20)",
   ZRX: "이더리움 (ERC-20)",
-}
+};
 
 // 코인 설명 정보
 export const coinDescriptions: Record<string, string> = {
@@ -320,7 +320,8 @@ export const coinDescriptions: Record<string, string> = {
   BORA: "게임과 디지털 콘텐츠에 특화된 탈중앙화 엔터테인먼트 플랫폼 보라(BORA)의 네이티브 토큰입니다. 초기에는 이더리움 기반이었으나 클레이튼으로 마이그레이션했습니다.",
   BOUNTY:
     "주로 한국 거래소에서 거래되며, 현상금 시스템과 관련된 프로젝트의 토큰으로 보입니다. 솔라나 기반의 다른 'BNTY' 토큰도 존재합니다.",
-  BRETT: "인터넷 밈 캐릭터에서 영감을 받은 밈 코인으로, 이더리움 레이어 2인 베이스(Base) 블록체인 위에서 작동합니다.",
+  BRETT:
+    "인터넷 밈 캐릭터에서 영감을 받은 밈 코인으로, 이더리움 레이어 2인 베이스(Base) 블록체인 위에서 작동합니다.",
   CBK: "한국의 암호화폐 커뮤니티 플랫폼인 코박(Cobak)에서 보상 및 프리미엄 서비스 이용에 사용되는 유틸리티 토큰입니다.",
   CRO: "Crypto.com이 개발한 블록체인 크로노스의 네이티브 토큰으로, DeFi, NFT 및 Web3 애플리케이션을 지원합니다.",
   CTC: "국경 없는 신용 투자 네트워크를 목표로 하는 크레딧코인(Creditcoin)의 네이티브 토큰으로, 신용 거래 기록에 사용됩니다.",
@@ -550,29 +551,45 @@ export const coinDescriptions: Record<string, string> = {
   ZK: "이더리움 레이어 2 확장 솔루션 zkSync의 거버넌스 토큰.",
   ZRO: "인터체인 메시징 프로토콜 LayerZero의 네이티브 토큰.",
   ZRX: "P2P 토큰 거래를 위한 0x 프로토콜의 유틸리티 토큰.",
-}
+  FLUID:
+    "플루이드(Fluid)는 이더리움 기반의 유동성 레이어 프로토콜로, 여러 디파이 프로토콜이 공유하는 단일 유동성 풀을 제공합니다. 이를 통해 자본 효율성을 극대화하고, 자동 한도 조정고도화된 청산 메커니즘으로 안정성을 확보합니다. 현재 렌딩, 볼트, DEX 프로토콜을 핵심으로 시작해 점차 다양한 프로토콜로 확장될 예정입니다. 프로토콜의 모든 업그레이드는 FLUID 토큰 보유자들의 거버넌스 투표를 통해 투명하게 결정됩니다.",
+  UDIS: "쿠디스(CUDIS)는 모두를 위한 글로벌 장수 장려 프로토콜입니다. 실제 사람 데이터를 통해 구동되며, 쿠디스링이라는 반지형태의 디바이스(스마트링)와 블록체인 기반 모바일앱을 통해, 사용자는 헬스 데이터에 대한 자기 주권을 지니며, 실시간으로 장수 관련 인사이트와 더불어 데이터 제공으로 경제적인 보상을 받을 수 있습니다.",
+  MIRA: "미라(Mira)는 AI가 생성한 결과물의 신뢰성 문제를 해결하기 위한 프로젝트입니다. 현재 AI 시스템은 환각(Hallucination)과 편향(Bias)으로 인해 오류가 발생하며, 이는 AI의 광범위한 활용을 제약합니다. 단일 AI 모델로는 이러한 문제를 해결하기 어렵기 때문에, 미라 네트워크는 여러 AI 모델의 집단 지성을 활용하여 분산된 합의 방식으로 AI 결과물을 검증합니다.",
+};
 
 // 블록체인 기반으로 마커 생성
 export function getBlockchainMarker(symbol: string): string | null {
-  const blockchain = blockchainInfo[symbol]
-  if (!blockchain) return null
+  const blockchain = blockchainInfo[symbol];
+  if (!blockchain) return null;
 
   // 주요 블록체인별 마커 매핑
-  if (blockchain.includes("이더리움") || blockchain.includes("ERC-20")) return "ETH"
-  if (blockchain.includes("솔라나") || blockchain.includes("SPL")) return "SOL"
-  if (blockchain.includes("BNB") || blockchain.includes("BSC") || blockchain.includes("BEP-20")) return "BNB"
-  if (blockchain.includes("비트코인") || blockchain.includes("Bitcoin")) return "BTC"
-  if (blockchain.includes("트론") || blockchain.includes("TRC")) return "TRX"
-  if (blockchain.includes("폴리곤") || blockchain.includes("Polygon")) return "MATIC"
-  if (blockchain.includes("아발란체") || blockchain.includes("Avalanche")) return "AVAX"
-  if (blockchain.includes("코스모스") || blockchain.includes("Cosmos")) return "ATOM"
-  if (blockchain.includes("클레이튼") || blockchain.includes("Klaytn")) return "KLAY"
-  if (blockchain.includes("Base")) return "BASE"
-  if (blockchain.includes("Arbitrum")) return "ARB"
-  if (blockchain.includes("네이티브") || blockchain.includes("자체")) return "NATIVE"
-  if (blockchain.includes("레이어 2") || blockchain.includes("L2")) return "L2"
+  if (blockchain.includes("이더리움") || blockchain.includes("ERC-20"))
+    return "ETH";
+  if (blockchain.includes("솔라나") || blockchain.includes("SPL")) return "SOL";
+  if (
+    blockchain.includes("BNB") ||
+    blockchain.includes("BSC") ||
+    blockchain.includes("BEP-20")
+  )
+    return "BNB";
+  if (blockchain.includes("비트코인") || blockchain.includes("Bitcoin"))
+    return "BTC";
+  if (blockchain.includes("트론") || blockchain.includes("TRC")) return "TRX";
+  if (blockchain.includes("폴리곤") || blockchain.includes("Polygon"))
+    return "MATIC";
+  if (blockchain.includes("아발란체") || blockchain.includes("Avalanche"))
+    return "AVAX";
+  if (blockchain.includes("코스모스") || blockchain.includes("Cosmos"))
+    return "ATOM";
+  if (blockchain.includes("클레이튼") || blockchain.includes("Klaytn"))
+    return "KLAY";
+  if (blockchain.includes("Base")) return "BASE";
+  if (blockchain.includes("Arbitrum")) return "ARB";
+  if (blockchain.includes("네이티브") || blockchain.includes("자체"))
+    return "NATIVE";
+  if (blockchain.includes("레이어 2") || blockchain.includes("L2")) return "L2";
 
-  return "OTHER"
+  return "OTHER";
 }
 
 // 블록체인 마커 색상
@@ -592,6 +609,6 @@ export function getBlockchainMarkerColor(marker: string): string {
     NATIVE: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
     L2: "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100",
     OTHER: "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100",
-  }
-  return colors[marker] || colors["OTHER"]
+  };
+  return colors[marker] || colors["OTHER"];
 }
