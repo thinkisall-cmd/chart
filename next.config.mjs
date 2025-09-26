@@ -9,6 +9,20 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // TradingView iframe 허용
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-src 'self' https://www.tradingview.com https://*.tradingview.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.tradingview.com https://*.tradingview.com;",
+          },
+        ],
+      },
+    ]
+  },
   // PWA 설정 - static export에서는 headers가 지원되지 않음
   // async headers() {
   //   return [
