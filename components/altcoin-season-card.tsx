@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, AlertCircle } from "lucide-react";
+import BitcoinPrice from "@/components/bitcoin-price";
 
 interface AltcoinSeasonData {
   index: number;
@@ -105,7 +106,7 @@ export default function AltcoinSeasonCard() {
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {/* 지수 */}
           <div className="text-center">
             <div className={`text-2xl font-bold ${getIndexColor(data.index)}`}>
@@ -131,6 +132,11 @@ export default function AltcoinSeasonCard() {
               {data.btcDominance.toFixed(1)}%
             </div>
             <div className="text-xs text-muted-foreground">BTC 도미넌스</div>
+          </div>
+
+          {/* 비트코인 가격 */}
+          <div className="text-center">
+            <BitcoinPrice />
           </div>
 
           {/* 설명 */}
