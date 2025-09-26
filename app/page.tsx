@@ -32,6 +32,8 @@ import PWAInstaller from "@/components/pwa-installer";
 import ServiceWorkerRegistration from "@/components/service-worker-registration";
 import SectorsPreview from "@/components/sectors-preview";
 import ExchangeVolatility from "@/components/exchange-volatility";
+import { BackButton } from "@/components/back-button";
+import NasdaqTradingView from "@/components/nasdaq-index";
 
 // Safe imports with fallbacks
 let CRYPTO_KOREAN_NAMES: any = {};
@@ -437,7 +439,10 @@ export default function CryptoTracker() {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const coinListElement = document.getElementById("coin-list");
+    if (coinListElement) {
+      coinListElement.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const goToPrevPage = () => {
@@ -550,6 +555,7 @@ export default function CryptoTracker() {
 
   return (
     <div className="min-h-screen bg-background">
+      <BackButton />
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col gap-3 mb-4 sm:mb-6">
           <div className="space-y-1">
@@ -713,6 +719,9 @@ export default function CryptoTracker() {
         {/* 알트코인 시즌 지수 */}
         <AltcoinSeasonCard />
 
+        {/* NASDAQ 지수 */}
+        <NasdaqTradingView />
+
         {/* 거래소별 변동률 */}
         <ExchangeVolatility
           coinData={coinData}
@@ -730,7 +739,7 @@ export default function CryptoTracker() {
           loading={loading}
         />
 
-        <div className="space-y-6 mt-6">
+        <div id="coin-list" className="space-y-6 mt-6">
           {/* Desktop Table View */}
           <div className="hidden lg:block">
             <Card>
@@ -868,10 +877,10 @@ export default function CryptoTracker() {
                   className="hover:shadow-sm transition-shadow cursor-pointer"
                   onClick={() => handleCoinClick(symbol, data)}
                 >
-                  <CardContent className="p-3">
-                    <div className="flex items-start justify-between mb-2">
+                  <CardContent className="p-2">
+                    <div className="flex items-start justify-between mb-1">
                       <div className="flex-1 min-w-0 pr-2">
-                        <div className="flex items-center gap-1.5 mb-1">
+                        <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-xs text-muted-foreground font-medium">
                             #{globalIndex}
                           </span>
@@ -879,7 +888,7 @@ export default function CryptoTracker() {
                             {koreanName}
                           </h3>
                         </div>
-                        <div className="flex items-center gap-1.5 mb-1.5">
+                        <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-xs text-muted-foreground font-mono">
                             {symbol}
                           </span>
@@ -917,39 +926,6 @@ export default function CryptoTracker() {
                       </Badge>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          현재가
-                        </span>
-                        <span className="font-semibold font-mono text-sm">
-                          ₩{formatPrice(getCurrentPrice(data).toString())}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          24시간 변동
-                        </span>
-                        <span
-                          className={`text-xs font-medium ${getChangeColor(
-                            realTimeChanges[symbol] || "0"
-                          )}`}
-                        >
-                          {Number.parseFloat(realTimeChanges[symbol] || "0") > 0
-                            ? "+"
-                            : ""}
-                          ₩{formatPrice(realTimeChanges[symbol] || "0")}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          거래량
-                        </span>
-                        <span className="text-xs font-mono">
-                          {formatVolume(data.units_traded_24H)}
-                        </span>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               );

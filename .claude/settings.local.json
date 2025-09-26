@@ -9,7 +9,8 @@
       "Bash(npm run build:*)",
       "Bash(pnpm install:*)",
       "Bash(npm run export:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:polygon.io)"
     ],
     "deny": [],
     "ask": []

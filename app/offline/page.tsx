@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { WifiOff, RefreshCw, Home } from "lucide-react"
 import Link from "next/link"
+import { BackButton } from "@/components/back-button"
 
 export default function OfflinePage() {
   const [isOnline, setIsOnline] = useState(true)
@@ -33,7 +34,9 @@ export default function OfflinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background">
+      <BackButton />
+      <div className="flex items-center justify-center p-4 pt-20">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
@@ -66,6 +69,7 @@ export default function OfflinePage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

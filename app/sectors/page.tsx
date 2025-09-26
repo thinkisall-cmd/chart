@@ -10,6 +10,7 @@ import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Users, ChevronRight, Ac
 import { groupCoinsBySector, calculateSectorStatsWithRealTime, MAIN_SECTORS } from "@/lib/crypto-sectors"
 import { useRouter } from "next/navigation"
 import { BannerAd, SquareAd } from "@/components/adsense"
+import { BackButton } from "@/components/back-button"
 
 interface CoinData {
   opening_price: string
@@ -243,6 +244,7 @@ export default function SectorOverview() {
 
   return (
     <div className="min-h-screen bg-background">
+      <BackButton />
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 xs:gap-4 mb-4">
           <div className="space-y-1">
