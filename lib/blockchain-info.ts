@@ -9,7 +9,6 @@ export const blockchainInfo: Record<string, string> = {
   BFC: "자체 메인넷 (EVM 호환)",
   BORA: "클레이튼 (Klaytn)",
   BOUNTY: "스마트 컨트랙트 플랫폼",
-  BRETT: "Base (이더리움 레이어 2)",
   CBK: "이더리움 기반",
   CRO: "크로노스 (Cronos, EVM 호환)",
   CTC: "자체 메인넷 (PoW + PoS)",
@@ -30,20 +29,19 @@ export const blockchainInfo: Record<string, string> = {
   ELF: "자체 블록체인",
   FCT2: "자체 블록체인",
   GAME2: "자체 블록체인",
-  HP: "BNB",
+  HP: "자체 블록체인",
   IP: "자체 블록체인",
   LWA: "수이 (Sui)",
   MED: "자체 블록체인",
-  META: "바이낸스 스마트 체인(BSC)",
+  META: "자체 블록체인",
   MNT: "이더리움 (L2)",
   MOC: "이더리움",
   MOCA: "이더리움",
-  NCT: "폴리곤",
   OBSR: "옵저버 (자체 메인넷)",
   PUFFER: "이더리움",
   SKY: "자체 블록체인 (Skycoin)",
   SONIC: "솔라나 (L2)",
-  SOON: "이더리움",
+  SOON: "솔라나",
   SPURS: "칠리즈 (Chiliz)",
   SWELL: "이더리움",
   TOKAMAK: "이더리움",
@@ -53,46 +51,48 @@ export const blockchainInfo: Record<string, string> = {
   WAL: "이더리움",
   PUMPBTC: "바이낸스 스마트 체인(BSC)",
   CUDIS: "솔라나 (SPL)",
-  MIRA: "base",
-  FLUID: "폴리곤 (Polygon, EVM 호환)",
+  MIRA: "Base",
+  FLUID: "이더리움 (L2)",
+  NCT: "이더리움 (L2)",
 
   // 두 번째 파일 데이터
-  MERL: "비트코인 레이어 2 (네이티브)",
+  MERL: "자체 블록체인",
   AVNT: "Base",
   AERO: "Base",
-  ATH: "솔라나",
+  ATH: "이더리움",
+  PROMPT: "Base",
   AVAIL: "Avail (네이티브)",
   ai16z: "솔라나 (SPL)",
   AVL: "Avalon Labs 생태계",
   B3: "Base (레이어 3)",
-  BLUE: "솔라나",
-  CARV: "이더리움 (ERC-20)",
+  BLUE: "SUI",
+  CARV: "Base",
   DRIFT: "솔라나 (SPL)",
   EPT: "이더리움",
   F: "이더리움 (ERC-20)",
   FLOCK: "BNB 체인 (BSC)",
   G: "PlayBlock (네이티브)",
-  GOAT: "비트코인 ZK 롤업",
+  GOAT: "솔라나 (SPL)",
   GRASS: "솔라나 (레이어 2)",
   H: "이더리움 (레이어 2, Polygon CDK)",
   MEW: "솔라나 (SPL)",
   MOODENG: "솔라나 (SPL)",
   OBT: "이더리움",
-  ORDER: "NEAR",
+  ORDER: "이더리움",
   PEFFUR: "이더리움 (ERC-20)",
   PEAQ: "peaq (네이티브, 레이어 1)",
   POKT: "Pocket Network (네이티브, PoS)",
-  PROMPT: "AI Wayfinder Ecosystem",
   PROVE: "이더리움 (ERC-20)",
-  RESOLV: "Immutable",
+  RESOLV: "이더리움",
   SAFE: "솔라나 포크",
   SD: "이더리움 (ERC-20)",
   SUNDOG: "트론 (TRC)",
   TAIKO: "이더리움 레이어 2 (ZK-Rollup)",
   TOWNS: "이더리움 (ERC-20)",
-  XTER: "Xterio (네이티브, PoS)",
+  XTER: "BNB 체인 (BEP-20)",
+  HAEDAL: "SUI",
   ZETA: "ZetaChain (네이티브, PoS)",
-  ZRC: "이더리움 (레이어 2, ZK-Rollup)",
+  ZRC: "Base",
 
   // 세 번째 파일 데이터
   "1INCH": "이더리움 (ERC-20)",
@@ -144,9 +144,12 @@ export const blockchainInfo: Record<string, string> = {
   CHZ: "이더리움 (ERC-20)",
   CKB: "너보스 네트워크 (네이티브)",
   COMP: "이더리움 (ERC-20)",
-  COOKIE: "이더리움 (ERC-20)",
-  COS: "BNB 체인 (BEP-2)",
+  COOKIE: "BNB 체인 (BEP-20)",
+
+  COS: "이더리움 (ERC-20)",
+  SIGN: "Base",
   COTI: "COTI (네이티브)",
+  PARTI: "BNB 체인 (BEP-20)",
   COW: "이더리움 (ERC-20)",
   CRV: "이더리움 (ERC-20)",
   CTK: "Shentu 체인 (네이티브)",
@@ -175,7 +178,7 @@ export const blockchainInfo: Record<string, string> = {
   GALA: "이더리움 (ERC-20)",
   GAS: "네오 (NEO)",
   GLM: "이더리움 (ERC-20)",
-  GMT: "솔라나 (SPL)",
+  GMT: "BNB",
   GMX: "Arbitrum",
   GNO: "이더리움 (ERC-20)",
   GRT: "이더리움 (ERC-20)",
@@ -185,7 +188,7 @@ export const blockchainInfo: Record<string, string> = {
   HIGH: "이더리움 (ERC-20)",
   HIVE: "하이브 (네이티브)",
   HOOK: "BNB 체인 (BEP-20)",
-  HUMA: "이더리움 (ERC-20)",
+  HUMA: "솔라나",
   ICP: "인터넷 컴퓨터 (네이티브)",
   ICX: "아이콘 (네이티브)",
   ID: "이더리움 (ERC-20)",
@@ -193,6 +196,7 @@ export const blockchainInfo: Record<string, string> = {
   IMX: "이더리움 (ERC-20)",
   INJ: "인젝티브 (네이티브)",
   IO: "솔라나 (SPL)",
+  PLUME: "이더리움 (ERC-20)",
   IOST: "IOST (네이티브)",
   IOTA: "IOTA (네이티브)",
   IOTX: "IoTeX (네이티브)",
@@ -210,6 +214,7 @@ export const blockchainInfo: Record<string, string> = {
   LDO: "이더리움 (ERC-20)",
   LINK: "이더리움 (ERC-20)",
   LISTA: "BNB 체인 (BEP-20)",
+  TOSHI: "솔라나 (SPL)",
   LPT: "이더리움 (ERC-20)",
   LRC: "이더리움 (ERC-20)",
   LSK: "리스크 (네이티브)",
@@ -236,6 +241,7 @@ export const blockchainInfo: Record<string, string> = {
   OSMO: "오스모시스 (네이티브)",
   OXT: "이더리움 (ERC-20)",
   PAXG: "이더리움 (ERC-20)",
+  LINEA: "자체 블록체인",
   PENDLE: "이더리움 (ERC-20)",
   PEPE: "이더리움 (ERC-20)",
   POL: "이더리움 (ERC-20)",
@@ -279,6 +285,7 @@ export const blockchainInfo: Record<string, string> = {
   T: "이더리움 (ERC-20)",
   TFUEL: "쎄타 (네이티브)",
   THETA: "쎄타 (네이티브)",
+  THE: "BNB 체인 (BEP-20)",
   TIA: "셀레스티아 (네이티브)",
   TON: "TON (네이티브)",
   TRUMP: "이더리움 (ERC-20)",
@@ -296,6 +303,7 @@ export const blockchainInfo: Record<string, string> = {
   WAXP: "WAX (네이티브)",
   WIF: "솔라나 (SPL)",
   WLD: "이더리움 (ERC-20)",
+  WLFI: "이더리움 (ERC-20)",
   WOO: "이더리움 (ERC-20)",
   XAI: "Arbitrum",
   XEC: "이캐시 (네이티브)",
@@ -309,6 +317,18 @@ export const blockchainInfo: Record<string, string> = {
   ZK: "이더리움 (ERC-20)",
   ZRO: "이더리움 (ERC-20)",
   ZRX: "이더리움 (ERC-20)",
+  FITFI: "아발란체 (ARC-20)",
+  HOLO: "솔라나 (SPL)",
+  OPEN: "이더리움 (ERC-20)",
+  KMNO: "솔라나",
+  AWE: "Base",
+  PENGU: "솔라나 (SPL)",
+  BABY: "자체 블록체인",
+  C: "Base",
+  KERNEL: "BNB 체인 (BEP-20)",
+  PONKE: "솔라나 (SPL)",
+  ME: "솔라나 (SPL)",
+  BRETT: "솔라나 (SPL)",
 };
 
 // 코인 설명 정보
@@ -563,7 +583,7 @@ export const coinDescriptions: Record<string, string> = {
 // 블록체인 기반으로 마커 생성
 export function getBlockchainMarker(symbol: string): string | null {
   const blockchain = blockchainInfo[symbol];
-  if (!blockchain) return null;
+  if (!blockchain) return "ETH"; // 블록체인 정보가 없는 코인들은 이더리움으로 처리
 
   // 주요 블록체인별 마커 매핑
   if (blockchain.includes("이더리움") || blockchain.includes("ERC-20"))
@@ -591,8 +611,9 @@ export function getBlockchainMarker(symbol: string): string | null {
   if (blockchain.includes("네이티브") || blockchain.includes("자체"))
     return "NATIVE";
   if (blockchain.includes("레이어 2") || blockchain.includes("L2")) return "L2";
+  if (blockchain.includes("SUI") || blockchain.includes("수이")) return "SUI";
 
-  return "OTHER";
+  return "ETH"; // OTHER로 분류되는 코인들은 이더리움으로 처리
 }
 
 // 블록체인 마커 색상
@@ -611,6 +632,7 @@ export function getBlockchainMarkerColor(marker: string): string {
     ARB: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
     NATIVE: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
     L2: "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100",
+    SUI: "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100",
     OTHER: "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100",
   };
   return colors[marker] || colors["OTHER"];

@@ -265,6 +265,7 @@ export const BINANCE_COINS = new Set([
   "ZRO",
   "ZRX",
   "POPCAT",
+  "C",
 ]);
 
 export const BINANCE_ALPHA_COINS = new Set([

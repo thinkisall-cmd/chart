@@ -38,15 +38,20 @@ import { SiteHeader } from "@/components/site-header";
 import dynamic from "next/dynamic";
 
 const SectorsPreview = dynamic(() => import("@/components/sectors-preview"), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-32 rounded"></div>
+  loading: () => <div className="animate-pulse bg-gray-200 h-32 rounded"></div>,
 });
 
-const ExchangeVolatility = dynamic(() => import("@/components/exchange-volatility"), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-40 rounded"></div>
-});
+const ExchangeVolatility = dynamic(
+  () => import("@/components/exchange-volatility"),
+  {
+    loading: () => (
+      <div className="animate-pulse bg-gray-200 h-40 rounded"></div>
+    ),
+  }
+);
 
 const NasdaqTradingView = dynamic(() => import("@/components/nasdaq-index"), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded"></div>
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded"></div>,
 });
 
 // Safe imports with fallbacks
@@ -95,6 +100,17 @@ try {
   getSectorColor = sectorsModule.getSectorColor || getSectorColor;
 } catch (error) {
   console.warn("Failed to load sector utilities:", error);
+}
+
+// 블록체인 기반 필터링을 위한 함수들
+let getBlockchainMarker: any = () => null;
+
+try {
+  const blockchainModule = require("@/lib/blockchain-info");
+  getBlockchainMarker =
+    blockchainModule.getBlockchainMarker || getBlockchainMarker;
+} catch (error) {
+  console.warn("Failed to load blockchain info:", error);
 }
 
 // 필터링을 위한 함수들
@@ -185,11 +201,37 @@ export default function CryptoTracker() {
   // 필터 토글 함수
   const toggleFilter = (filterKey: string) => {
     const newFilters = new Set(activeFilters);
-    if (newFilters.has(filterKey)) {
-      newFilters.delete(filterKey);
+
+    // 블록체인 필터들 정의
+    const blockchainFilters = [
+      "ethereum",
+      "solana",
+      "bnb-chain",
+      "bitcoin",
+      "tron",
+      "base",
+      "avalanche",
+      "layer2",
+      "native",
+    ];
+
+    if (blockchainFilters.includes(filterKey)) {
+      // 블록체인 필터는 단일 선택 (다른 블록체인 필터들 모두 해제)
+      blockchainFilters.forEach((filter) => newFilters.delete(filter));
+
+      // 현재 필터가 이미 활성화되어 있지 않았다면 추가
+      if (!activeFilters.has(filterKey)) {
+        newFilters.add(filterKey);
+      }
     } else {
-      newFilters.add(filterKey);
+      // 거래소 필터는 다중 선택 가능
+      if (newFilters.has(filterKey)) {
+        newFilters.delete(filterKey);
+      } else {
+        newFilters.add(filterKey);
+      }
     }
+
     setActiveFilters(newFilters);
     setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
   };
@@ -200,24 +242,135 @@ export default function CryptoTracker() {
     setCurrentPage(1);
   };
 
+  // 블록체인별 필터 함수들
+  const isEthereumCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "ETH";
+  };
+
+  const isSolanaCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "SOL";
+  };
+
+  const isBnbChainCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "BNB";
+  };
+
+  const isBitcoinCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "BTC";
+  };
+
+  const isTronCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "TRX";
+  };
+
+  const isBaseCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "BASE";
+  };
+
+  const isAvalancheCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "AVAX";
+  };
+
+  const isLayer2Coin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "L2" || marker === "BASE" || marker === "ARB";
+  };
+
+  const isNativeCoin = (symbol: string): boolean => {
+    const marker = getBlockchainMarker(symbol);
+    return marker === "NATIVE";
+  };
+
   // 코인이 현재 활성 필터에 맞는지 확인하는 함수
   const coinMatchesFilters = (symbol: string): boolean => {
     if (activeFilters.size === 0) return true;
 
-    return Array.from(activeFilters).some(filter => {
-      switch (filter) {
-        case 'binance':
-          return isBinanceCoin(symbol);
-        case 'binance-alpha':
-          return isBinanceAlphaCoin(symbol);
-        case 'upbit':
-          return isUpbitCoin(symbol);
-        case 'upbit-usdt':
-          return isUpbitUsdtCoin(symbol);
-        default:
-          return false;
+    const filters = Array.from(activeFilters);
+
+    // 블록체인 필터들과 거래소 필터들 분리
+    const blockchainFilters = [
+      "ethereum",
+      "solana",
+      "bnb-chain",
+      "bitcoin",
+      "tron",
+      "base",
+      "avalanche",
+      "layer2",
+      "native",
+    ];
+    const exchangeFilters = ["binance", "binance-alpha", "upbit", "upbit-usdt"];
+
+    const activeBlockchainFilters = filters.filter((f) =>
+      blockchainFilters.includes(f)
+    );
+    const activeExchangeFilters = filters.filter((f) =>
+      exchangeFilters.includes(f)
+    );
+
+    // 블록체인 필터 체크 (단일 선택이므로 하나만 있을 것)
+    let blockchainMatch = activeBlockchainFilters.length === 0; // 블록체인 필터가 없으면 true
+    if (activeBlockchainFilters.length > 0) {
+      const blockchainFilter = activeBlockchainFilters[0];
+      switch (blockchainFilter) {
+        case "ethereum":
+          blockchainMatch = isEthereumCoin(symbol);
+          break;
+        case "solana":
+          blockchainMatch = isSolanaCoin(symbol);
+          break;
+        case "bnb-chain":
+          blockchainMatch = isBnbChainCoin(symbol);
+          break;
+        case "bitcoin":
+          blockchainMatch = isBitcoinCoin(symbol);
+          break;
+        case "tron":
+          blockchainMatch = isTronCoin(symbol);
+          break;
+        case "base":
+          blockchainMatch = isBaseCoin(symbol);
+          break;
+        case "avalanche":
+          blockchainMatch = isAvalancheCoin(symbol);
+          break;
+        case "layer2":
+          blockchainMatch = isLayer2Coin(symbol);
+          break;
+        case "native":
+          blockchainMatch = isNativeCoin(symbol);
+          break;
       }
-    });
+    }
+
+    // 거래소 필터 체크 (다중 선택 가능하므로 OR 로직)
+    let exchangeMatch = activeExchangeFilters.length === 0; // 거래소 필터가 없으면 true
+    if (activeExchangeFilters.length > 0) {
+      exchangeMatch = activeExchangeFilters.some((filter) => {
+        switch (filter) {
+          case "binance":
+            return isBinanceCoin(symbol);
+          case "binance-alpha":
+            return isBinanceAlphaCoin(symbol);
+          case "upbit":
+            return isUpbitCoin(symbol);
+          case "upbit-usdt":
+            return isUpbitUsdtCoin(symbol);
+          default:
+            return false;
+        }
+      });
+    }
+
+    // 블록체인 필터와 거래소 필터 모두 만족해야 함 (AND 로직)
+    return blockchainMatch && exchangeMatch;
   };
 
   // 전체 코인 목록 가져오기 (최적화)
@@ -225,12 +378,12 @@ export default function CryptoTracker() {
     const fetchAllCoins = async () => {
       try {
         // 캐시된 데이터가 있으면 먼저 사용
-        const cachedData = sessionStorage.getItem('coinsList');
-        const cacheTime = sessionStorage.getItem('coinsListTime');
+        const cachedData = sessionStorage.getItem("coinsList");
+        const cacheTime = sessionStorage.getItem("coinsListTime");
         const now = Date.now();
 
         // 캐시가 1분 이내라면 사용
-        if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 60000) {
+        if (cachedData && cacheTime && now - parseInt(cacheTime) < 60000) {
           const coinList = JSON.parse(cachedData);
           setAvailableCoins(coinList);
           return;
@@ -248,8 +401,8 @@ export default function CryptoTracker() {
             .map((symbol) => `${symbol}_KRW`);
 
           // 캐시에 저장
-          sessionStorage.setItem('coinsList', JSON.stringify(coinList));
-          sessionStorage.setItem('coinsListTime', now.toString());
+          sessionStorage.setItem("coinsList", JSON.stringify(coinList));
+          sessionStorage.setItem("coinsListTime", now.toString());
 
           setAvailableCoins(coinList);
         }
@@ -301,7 +454,9 @@ export default function CryptoTracker() {
             newCoinData[symbol] = data;
 
             // closing_price가 0이면 prev_closing_price 사용 (빗썸 12시 초기화 대응)
-            const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+            const currentPrice =
+              Number.parseFloat(data.closing_price) ||
+              Number.parseFloat(data.prev_closing_price);
             const previousPrice = previousPrices[symbol];
 
             // 강제로 변화 감지하기 위해 더 민감한 비교
@@ -338,7 +493,7 @@ export default function CryptoTracker() {
 
             // 12시 초기화 체크 (한국 시간 기준)
             const now = new Date();
-            const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+            const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000); // UTC+9
             const currentHour = koreaTime.getHours();
             const currentMinute = koreaTime.getMinutes();
 
@@ -346,22 +501,31 @@ export default function CryptoTracker() {
             const isAfterMidnight = currentHour === 0 && currentMinute < 5;
 
             // 실제 변동률 직접 계산 (빗썸 초기화 이슈 해결)
-            const openingPrice = Number.parseFloat(data.opening_price) || Number.parseFloat(data.prev_closing_price);
+            const openingPrice =
+              Number.parseFloat(data.opening_price) ||
+              Number.parseFloat(data.prev_closing_price);
             const actualChange = currentPrice - openingPrice;
-            const actualChangePercent = openingPrice > 0 ? ((actualChange / openingPrice) * 100) : 0;
+            const actualChangePercent =
+              openingPrice > 0 ? (actualChange / openingPrice) * 100 : 0;
 
-            if (isAfterMidnight || (Number.parseFloat(data.opening_price) === 0 && Number.parseFloat(data.closing_price) === 0)) {
+            if (
+              isAfterMidnight ||
+              (Number.parseFloat(data.opening_price) === 0 &&
+                Number.parseFloat(data.closing_price) === 0)
+            ) {
               // 자정 직후이거나 데이터가 초기화된 상태
               newRealTimeChanges[symbol] = "0";
               newRealTimeChangePercents[symbol] = "0.00";
             } else if (openingPrice > 0 && currentPrice > 0) {
               // 정상적인 데이터가 있을 때는 직접 계산한 값 사용
               newRealTimeChanges[symbol] = actualChange.toString();
-              newRealTimeChangePercents[symbol] = actualChangePercent.toFixed(2);
+              newRealTimeChangePercents[symbol] =
+                actualChangePercent.toFixed(2);
             } else {
               // 계산할 수 없는 경우 API 값 사용
               newRealTimeChanges[symbol] = data.fluctate_24H || "0";
-              newRealTimeChangePercents[symbol] = data.fluctate_rate_24H || "0.00";
+              newRealTimeChangePercents[symbol] =
+                data.fluctate_rate_24H || "0.00";
             }
           });
 
@@ -369,7 +533,9 @@ export default function CryptoTracker() {
           const newPreviousPrices: { [key: string]: string } = {};
           Object.keys(newCoinData).forEach((symbol) => {
             const data = newCoinData[symbol];
-            const currentPrice = Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+            const currentPrice =
+              Number.parseFloat(data.closing_price) ||
+              Number.parseFloat(data.prev_closing_price);
             newPreviousPrices[symbol] = currentPrice.toString();
           });
 
@@ -383,7 +549,6 @@ export default function CryptoTracker() {
           setRealTimeChangePercents(newRealTimeChangePercents);
           setLastUpdate(new Date());
           setLoading(false);
-
 
           // 2초 후 변동 표시 제거 (더 빠르게)
           setTimeout(() => {
@@ -419,7 +584,10 @@ export default function CryptoTracker() {
 
   // 현재가 표시용 함수 (0일 때 이전 종가 사용)
   const getCurrentPrice = (data: CoinData) => {
-    return Number.parseFloat(data.closing_price) || Number.parseFloat(data.prev_closing_price);
+    return (
+      Number.parseFloat(data.closing_price) ||
+      Number.parseFloat(data.prev_closing_price)
+    );
   };
 
   const formatVolume = (volume: string) => {
@@ -450,17 +618,15 @@ export default function CryptoTracker() {
 
   const sortedCoins = Object.entries(coinData)
     .filter(([symbol]) => coinMatchesFilters(symbol))
-    .sort(
-      ([symbolA, dataA], [symbolB, dataB]) => {
-        const changeA = Number.parseFloat(
-          realTimeChangePercents[symbolA] || dataA.fluctate_rate_24H || "0"
-        );
-        const changeB = Number.parseFloat(
-          realTimeChangePercents[symbolB] || dataB.fluctate_rate_24H || "0"
-        );
-        return changeB - changeA;
-      }
-    );
+    .sort(([symbolA, dataA], [symbolB, dataB]) => {
+      const changeA = Number.parseFloat(
+        realTimeChangePercents[symbolA] || dataA.fluctate_rate_24H || "0"
+      );
+      const changeB = Number.parseFloat(
+        realTimeChangePercents[symbolB] || dataB.fluctate_rate_24H || "0"
+      );
+      return changeB - changeA;
+    });
 
   const totalPages = Math.ceil(sortedCoins.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -510,7 +676,8 @@ export default function CryptoTracker() {
   const handleCoinClick = (symbol: string, data: CoinData) => {
     const koreanName = getKoreanName(symbol);
     const realTimeChange = realTimeChanges[symbol] || data.fluctate_24H || "0";
-    const realTimeChangePercent = realTimeChangePercents[symbol] || data.fluctate_rate_24H || "0.00";
+    const realTimeChangePercent =
+      realTimeChangePercents[symbol] || data.fluctate_rate_24H || "0.00";
 
     setSelectedCoin({
       symbol,
@@ -689,69 +856,6 @@ export default function CryptoTracker() {
           <ResponsiveAd />
         </div>
 
-        {/* 마커 필터 */}
-        <Card className="mb-3 sm:mb-4">
-          <CardHeader className="pb-1 px-3 sm:px-6 pt-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs font-medium flex items-center gap-1">
-                <Filter className="w-3 h-3" />
-                마커 필터
-              </CardTitle>
-              {activeFilters.size > 0 && (
-                <Button
-                  onClick={clearFilters}
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-6 px-2"
-                >
-                  전체 보기
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3">
-            <div className="flex flex-wrap gap-1.5">
-              <Button
-                onClick={() => toggleFilter('binance')}
-                variant={activeFilters.has('binance') ? "default" : "outline"}
-                size="sm"
-                className="text-xs h-7 px-2 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 data-[state=on]:bg-orange-200"
-              >
-                BN ({Object.keys(coinData).filter(symbol => isBinanceCoin(symbol)).length})
-              </Button>
-              <Button
-                onClick={() => toggleFilter('binance-alpha')}
-                variant={activeFilters.has('binance-alpha') ? "default" : "outline"}
-                size="sm"
-                className="text-xs h-7 px-2 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 data-[state=on]:bg-yellow-200"
-              >
-                Alpha ({Object.keys(coinData).filter(symbol => isBinanceAlphaCoin(symbol)).length})
-              </Button>
-              <Button
-                onClick={() => toggleFilter('upbit')}
-                variant={activeFilters.has('upbit') ? "default" : "outline"}
-                size="sm"
-                className="text-xs h-7 px-2 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 data-[state=on]:bg-purple-200"
-              >
-                UP ({Object.keys(coinData).filter(symbol => isUpbitCoin(symbol)).length})
-              </Button>
-              <Button
-                onClick={() => toggleFilter('upbit-usdt')}
-                variant={activeFilters.has('upbit-usdt') ? "default" : "outline"}
-                size="sm"
-                className="text-xs h-7 px-2 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 data-[state=on]:bg-blue-200"
-              >
-                UPusdt ({Object.keys(coinData).filter(symbol => isUpbitUsdtCoin(symbol)).length})
-              </Button>
-            </div>
-            {activeFilters.size > 0 && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                {sortedCoins.length}개 코인 표시 중 (전체 {Object.keys(coinData).length}개 중)
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         {/* 알트코인 시즌 지수 */}
         <AltcoinSeasonCard />
 
@@ -839,6 +943,245 @@ export default function CryptoTracker() {
           realTimeChangePercents={realTimeChangePercents}
           loading={loading}
         />
+
+        {/* 마커 필터 */}
+        <Card className="mb-3 sm:mb-4">
+          <CardHeader className="pb-1 px-3 sm:px-6 pt-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-medium flex items-center gap-1">
+                <Filter className="w-3 h-3" />
+                마커 필터
+              </CardTitle>
+              {activeFilters.size > 0 && (
+                <Button
+                  onClick={clearFilters}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                >
+                  전체 보기
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6 pb-3 space-y-3">
+            {/* 거래소 필터 */}
+            <div>
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">
+                거래소
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <Button
+                  onClick={() => toggleFilter("binance")}
+                  variant={activeFilters.has("binance") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 data-[state=on]:bg-orange-200"
+                >
+                  BN (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isBinanceCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("binance-alpha")}
+                  variant={
+                    activeFilters.has("binance-alpha") ? "default" : "outline"
+                  }
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 data-[state=on]:bg-yellow-200"
+                >
+                  Alpha (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isBinanceAlphaCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("upbit")}
+                  variant={activeFilters.has("upbit") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 data-[state=on]:bg-purple-200"
+                >
+                  UP (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isUpbitCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("upbit-usdt")}
+                  variant={
+                    activeFilters.has("upbit-usdt") ? "default" : "outline"
+                  }
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 data-[state=on]:bg-blue-200"
+                >
+                  UPusdt (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isUpbitUsdtCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+              </div>
+            </div>
+
+            {/* 블록체인 필터 */}
+            <div>
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">
+                블록체인
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <Button
+                  onClick={() => toggleFilter("ethereum")}
+                  variant={
+                    activeFilters.has("ethereum") ? "default" : "outline"
+                  }
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 data-[state=on]:bg-blue-200"
+                >
+                  ETH (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isEthereumCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("solana")}
+                  variant={activeFilters.has("solana") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 data-[state=on]:bg-purple-200"
+                >
+                  SOL (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isSolanaCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("bnb-chain")}
+                  variant={
+                    activeFilters.has("bnb-chain") ? "default" : "outline"
+                  }
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 data-[state=on]:bg-yellow-200"
+                >
+                  BNB (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isBnbChainCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("bitcoin")}
+                  variant={activeFilters.has("bitcoin") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 data-[state=on]:bg-orange-200"
+                >
+                  BTC (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isBitcoinCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("tron")}
+                  variant={activeFilters.has("tron") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-red-50 text-red-700 border-red-200 hover:bg-red-100 data-[state=on]:bg-red-200"
+                >
+                  TRX (
+                  {
+                    Object.keys(coinData).filter((symbol) => isTronCoin(symbol))
+                      .length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("base")}
+                  variant={activeFilters.has("base") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100 data-[state=on]:bg-cyan-200"
+                >
+                  BASE (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isBaseCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("avalanche")}
+                  variant={
+                    activeFilters.has("avalanche") ? "default" : "outline"
+                  }
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-red-50 text-red-700 border-red-200 hover:bg-red-100 data-[state=on]:bg-red-200"
+                >
+                  AVAX (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isAvalancheCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("layer2")}
+                  variant={activeFilters.has("layer2") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100 data-[state=on]:bg-violet-200"
+                >
+                  L2 (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isLayer2Coin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+                <Button
+                  onClick={() => toggleFilter("native")}
+                  variant={activeFilters.has("native") ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-7 px-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 data-[state=on]:bg-green-200"
+                >
+                  Native (
+                  {
+                    Object.keys(coinData).filter((symbol) =>
+                      isNativeCoin(symbol)
+                    ).length
+                  }
+                  )
+                </Button>
+              </div>
+            </div>
+
+            {activeFilters.size > 0 && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                {sortedCoins.length}개 코인 표시 중 (전체{" "}
+                {Object.keys(coinData).length}개 중)
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <div id="coin-list" className="space-y-6 mt-6">
           {/* Desktop Table View */}
@@ -1026,7 +1369,6 @@ export default function CryptoTracker() {
                         {realTimeChangePercents[symbol] || "0.00"}%
                       </Badge>
                     </div>
-
                   </CardContent>
                 </Card>
               );
@@ -1098,7 +1440,9 @@ export default function CryptoTracker() {
             ></span>
             <span>
               {activeFilters.size > 0
-                ? `${sortedCoins.length}개 코인 표시 중 (전체 ${Object.keys(coinData).length}개 중)`
+                ? `${sortedCoins.length}개 코인 표시 중 (전체 ${
+                    Object.keys(coinData).length
+                  }개 중)`
                 : `총 ${Object.keys(coinData).length}개 코인`}
             </span>
           </div>
@@ -1115,7 +1459,6 @@ export default function CryptoTracker() {
             changePercent={selectedCoin.changePercent}
           />
         )}
-
 
         {/* Service Worker 등록 */}
         <ServiceWorkerRegistration />
