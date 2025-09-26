@@ -24,6 +24,8 @@ import {
   BarChart3,
   Activity,
   Filter,
+  ExternalLink,
+  TrendingUpIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { BannerAd, ResponsiveAd } from "@/components/adsense";
@@ -654,6 +656,11 @@ export default function CryptoTracker() {
           </CardContent>
         </Card>
 
+        {/* 광고 - 범례 아래 */}
+        <div className="mb-3 sm:mb-4">
+          <ResponsiveAd />
+        </div>
+
         {/* 마커 필터 */}
         <Card className="mb-3 sm:mb-4">
           <CardHeader className="pb-1 px-3 sm:px-6 pt-3">
@@ -722,6 +729,71 @@ export default function CryptoTracker() {
 
         {/* NASDAQ 지수 */}
         <NasdaqTradingView />
+
+        {/* 바로가기 섹션 */}
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm sm:text-base font-semibold flex items-center gap-2">
+              <ExternalLink className="w-4 h-4" />
+              바로가기
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* 워뇨띠 포지션 보러가기 */}
+              <a
+                href="https://www.binance.com/en/futures-activity/leaderboard/user/um?encryptedUid=14EA12E7412DC5A21DFF5E7EAC6013B9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Button
+                  variant="outline"
+                  className="w-full h-auto p-4 text-left justify-start hover:bg-primary/5 transition-colors"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-shrink-0">
+                      <TrendingUpIcon className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">워뇨띠 포지션</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        바이낸스 선물 리더보드
+                      </div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </Button>
+              </a>
+
+              {/* 바이낸스 알파 거래소 */}
+              <a
+                href="https://www.binance.com/en/alpha/bsc/0xb994882a1b9bd98a71dd6ea5f61577c42848b0e8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Button
+                  variant="outline"
+                  className="w-full h-auto p-4 text-left justify-start hover:bg-primary/5 transition-colors"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-shrink-0">
+                      <BarChart3 className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">바이낸스 알파</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        알파 거래소 바로가기
+                      </div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 거래소별 변동률 */}
         <ExchangeVolatility
