@@ -28,12 +28,12 @@ import {
 import Link from "next/link";
 import { BannerAd, ResponsiveAd } from "@/components/adsense";
 import AltcoinSeasonCard from "@/components/altcoin-season-card";
-import PWAInstaller from "@/components/pwa-installer";
 import ServiceWorkerRegistration from "@/components/service-worker-registration";
 import SectorsPreview from "@/components/sectors-preview";
 import ExchangeVolatility from "@/components/exchange-volatility";
 import { BackButton } from "@/components/back-button";
 import NasdaqTradingView from "@/components/nasdaq-index";
+import { SiteHeader } from "@/components/site-header";
 
 // Safe imports with fallbacks
 let CRYPTO_KOREAN_NAMES: any = {};
@@ -555,6 +555,7 @@ export default function CryptoTracker() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SiteHeader />
       <BackButton />
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col gap-3 mb-4 sm:mb-6">
@@ -1015,8 +1016,6 @@ export default function CryptoTracker() {
           />
         )}
 
-        {/* PWA 설치 배너 */}
-        <PWAInstaller />
 
         {/* Service Worker 등록 */}
         <ServiceWorkerRegistration />

@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 // import { Analytics } from '@vercel/analytics/next' // Static export doesn't support Vercel Analytics
 import Script from 'next/script'
+import { InstallPWAButton } from '@/components/install-pwa-button'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -105,6 +106,7 @@ export default function RootLayout({
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         {children}
+        <InstallPWAButton />
         {/* <Analytics /> Static export doesn't support Vercel Analytics */}
       </body>
     </html>
