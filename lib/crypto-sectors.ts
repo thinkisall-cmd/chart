@@ -501,6 +501,8 @@ export const CRYPTO_SECTORS: { [key: string]: string } = {
   UST: "Stablecoin",
   MIR: "DeFi",
   ANC: "DeFi",
+  FLUID: "DeFi",
+  CUDIS: "DEX",
 };
 
 // 섹터별로 코인을 그룹화하는 함수
@@ -605,7 +607,9 @@ export const calculateSectorStatsWithRealTime = (
   Object.entries(sectorGroups).forEach(([sector, coins]) => {
     const changes = coins.map((coin) => {
       const realTimeChange = realTimeChangePercents[coin.symbol];
-      return realTimeChange ? Number.parseFloat(realTimeChange) : Number.parseFloat(coin.data.fluctate_rate_24H);
+      return realTimeChange
+        ? Number.parseFloat(realTimeChange)
+        : Number.parseFloat(coin.data.fluctate_rate_24H);
     });
     const volumes = coins.map((coin) =>
       Number.parseFloat(coin.data.units_traded_24H)
@@ -619,7 +623,7 @@ export const calculateSectorStatsWithRealTime = (
 
     const coinsWithRealTimeChange = coins.map((coin, index) => ({
       ...coin,
-      realTimeChange: changes[index]
+      realTimeChange: changes[index],
     }));
 
     const sortedByChange = coinsWithRealTimeChange.sort(
@@ -668,6 +672,7 @@ export const MAIN_SECTORS = [
   "Stablecoin",
   "Exchange",
   "Privacy",
+  "DEX",
 ];
 
 export const getCoinSector = (symbol: string): string => {
@@ -690,6 +695,7 @@ export const getSectorColor = (sector: string): string => {
     Stablecoin: "bg-slate-100 text-slate-800",
     Exchange: "bg-neutral-100 text-neutral-800",
     Privacy: "bg-teal-100 text-teal-800",
+    DEX: "bg-pink-100 text-pink-800",
   };
   return colorMap[sector] || "bg-neutral-100 text-neutral-800";
 };

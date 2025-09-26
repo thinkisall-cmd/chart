@@ -52,6 +52,9 @@ export const blockchainInfo: Record<string, string> = {
   UXLINK: "이더리움 (L2)",
   WAL: "이더리움",
   PUMPBTC: "바이낸스 스마트 체인(BSC)",
+  CUDIS: "솔라나 (SPL)",
+  MIRA: "base",
+  FLUID: "폴리곤 (Polygon, EVM 호환)",
 
   // 두 번째 파일 데이터
   MERL: "비트코인 레이어 2 (네이티브)",

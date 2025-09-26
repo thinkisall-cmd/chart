@@ -1,4 +1,4 @@
-import SectorDetailClient from './SectorDetailClient'
+import SectorDetailClient from "./SectorDetailClient";
 
 // Static params generation for static export
 export async function generateStaticParams() {
@@ -17,16 +17,21 @@ export async function generateStaticParams() {
     "Stablecoin",
     "Exchange",
     "Privacy",
-    "기타" // Default sector
+    "DEX",
+    "기타", // Default sector
   ];
 
   return sectors.map((sector) => ({
-    sector: encodeURIComponent(sector)
+    sector: encodeURIComponent(sector),
   }));
 }
 
-export default function SectorDetail({ params }: { params: { sector: string } }) {
-  const sectorName = decodeURIComponent(params.sector)
+export default function SectorDetail({
+  params,
+}: {
+  params: { sector: string };
+}) {
+  const sectorName = decodeURIComponent(params.sector);
 
-  return <SectorDetailClient sectorName={sectorName} />
+  return <SectorDetailClient sectorName={sectorName} />;
 }
