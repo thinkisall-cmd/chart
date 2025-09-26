@@ -73,6 +73,29 @@ export function InstallPWAButton() {
             setShowInstallBanner(true);
           }
         }, 3000); // 3초 후 표시
+      } else if (!isStandalone) {
+        // 프로덕션에서 PWA 조건 확인 후 배너 표시
+        const checkPWAConditions = () => {
+          const hasServiceWorker = 'serviceWorker' in navigator;
+          const isHTTPS = location.protocol === 'https:';
+          const hasManifest = document.querySelector('link[rel="manifest"]');
+
+          if (hasServiceWorker && isHTTPS && hasManifest) {
+            setTimeout(() => {
+              if (!(window as any).deferredPrompt) {
+                console.log('PWA 조건 충족 - 배너 강제 표시');
+                setIsInstallable(true);
+
+                const bannerDismissed = localStorage.getItem('pwa-banner-dismissed');
+                if (!bannerDismissed) {
+                  setShowInstallBanner(true);
+                }
+              }
+            }, 8000); // 8초 후 표시
+          }
+        };
+
+        checkPWAConditions();
       }
 
       return () => {

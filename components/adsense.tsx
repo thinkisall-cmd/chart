@@ -30,16 +30,47 @@ export default function AdSense({
     // 광고를 로드하는 함수
     const loadAd = () => {
       try {
-        // @ts-ignore
-        (window.adsbygoogle = window.adsbygoogle || []).push({})
+        // AdSense 스크립트가 로드되었는지 확인
+        if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+          // @ts-ignore
+          (window.adsbygoogle = window.adsbygoogle || []).push({})
+        } else {
+          // 스크립트가 로드되지 않았으면 잠시 후 재시도
+          setTimeout(loadAd, 500)
+        }
       } catch (error) {
         console.error('AdSense error:', error)
+        // 에러 발생 시 재시도
+        setTimeout(loadAd, 1000)
       }
     }
 
-    // 페이지 로드 후 약간의 지연을 두고 광고 로드
-    const timer = setTimeout(loadAd, 1000)
-    return () => clearTimeout(timer)
+    // Intersection Observer를 사용해 광고가 화면에 보일 때만 로드
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // 광고가 화면에 보이면 즉시 로드
+            setTimeout(loadAd, 100)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    // 현재 광고 요소를 관찰
+    const adElement = document.querySelector(`[data-ad-slot="${adSlot}"]`)
+    if (adElement) {
+      observer.observe(adElement)
+    } else {
+      // 요소를 찾지 못했으면 짧은 지연 후 로드
+      setTimeout(loadAd, 300)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
   }, [])
 
   // ADSENSE_ENABLED가 false인 경우에만 플레이스홀더 표시
@@ -111,16 +142,26 @@ export function SidebarAd({ className }: { className?: string }) {
   )
 }
 
-// 반응형 광고 (추천)
+// 반응형 광고 (추천) - 로딩 상태 개선
 export function ResponsiveAd({ className }: { className?: string }) {
   return (
     <div className={`w-full ${className}`}>
-      <AdSense
-        adSlot="6449748843" // 반응형 광고 슬롯
-        adFormat="auto"
-        className="w-full"
-        style={{ display: "block" }}
-      />
+      {/* 광고 로딩 중일 때 placeholder */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gray-50 animate-pulse rounded flex items-center justify-center min-h-[100px]">
+          <div className="text-xs text-gray-400">광고 로딩 중...</div>
+        </div>
+        <AdSense
+          adSlot="6449748843" // 반응형 광고 슬롯
+          adFormat="auto"
+          className="w-full relative z-10"
+          style={{
+            display: "block",
+            minHeight: "100px",
+            backgroundColor: "transparent"
+          }}
+        />
+      </div>
     </div>
   )
 }

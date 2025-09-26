@@ -31,11 +31,23 @@ import Link from "next/link";
 import { BannerAd, ResponsiveAd } from "@/components/adsense";
 import AltcoinSeasonCard from "@/components/altcoin-season-card";
 import ServiceWorkerRegistration from "@/components/service-worker-registration";
-import SectorsPreview from "@/components/sectors-preview";
-import ExchangeVolatility from "@/components/exchange-volatility";
 import { BackButton } from "@/components/back-button";
-import NasdaqTradingView from "@/components/nasdaq-index";
 import { SiteHeader } from "@/components/site-header";
+
+// 지연 로딩으로 초기 번들 사이즈 줄이기
+import dynamic from "next/dynamic";
+
+const SectorsPreview = dynamic(() => import("@/components/sectors-preview"), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-32 rounded"></div>
+});
+
+const ExchangeVolatility = dynamic(() => import("@/components/exchange-volatility"), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-40 rounded"></div>
+});
+
+const NasdaqTradingView = dynamic(() => import("@/components/nasdaq-index"), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded"></div>
+});
 
 // Safe imports with fallbacks
 let CRYPTO_KOREAN_NAMES: any = {};
@@ -208,10 +220,22 @@ export default function CryptoTracker() {
     });
   };
 
-  // 전체 코인 목록 가져오기
+  // 전체 코인 목록 가져오기 (최적화)
   useEffect(() => {
     const fetchAllCoins = async () => {
       try {
+        // 캐시된 데이터가 있으면 먼저 사용
+        const cachedData = sessionStorage.getItem('coinsList');
+        const cacheTime = sessionStorage.getItem('coinsListTime');
+        const now = Date.now();
+
+        // 캐시가 1분 이내라면 사용
+        if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 60000) {
+          const coinList = JSON.parse(cachedData);
+          setAvailableCoins(coinList);
+          return;
+        }
+
         const response = await fetch(`/api/bithumb-proxy?_t=${Date.now()}`, {
           cache: "no-store",
         });
@@ -222,6 +246,10 @@ export default function CryptoTracker() {
           const coinList = Object.keys(data.data)
             .filter((symbol) => symbol !== "date") // date 필드 제외
             .map((symbol) => `${symbol}_KRW`);
+
+          // 캐시에 저장
+          sessionStorage.setItem('coinsList', JSON.stringify(coinList));
+          sessionStorage.setItem('coinsListTime', now.toString());
 
           setAvailableCoins(coinList);
         }

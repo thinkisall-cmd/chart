@@ -18,6 +18,7 @@ import { BlockchainMarkersLegend } from "@/components/blockchain-markers"
 import { CoinDetailModal } from "@/components/coin-detail-modal"
 import { useRouter } from "next/navigation"
 import { BackButton } from "@/components/back-button"
+import { ResponsiveAd } from "@/components/adsense"
 
 interface CoinData {
   opening_price: string
@@ -358,6 +359,11 @@ export default function SectorDetailClient({ sectorName }: { sectorName: string 
             </div>
           </CardContent>
         </Card>
+
+        {/* 광고 - 범례 아래 */}
+        <div className="mb-4">
+          <ResponsiveAd />
+        </div>
 
         {/* Sector Statistics */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">

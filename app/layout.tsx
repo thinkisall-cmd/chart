@@ -95,13 +95,28 @@ export default function RootLayout({
           href="/rss.xml"
         />
 
-        {/* Google AdSense */}
+        {/* Google AdSense - 빠른 로딩을 위해 preload */}
+        <link
+          rel="preload"
+          href="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          as="script"
+          crossOrigin="anonymous"
+        />
         <Script
           id="google-adsense"
-          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3000971739024587"
           crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
+        <Script
+          id="adsense-init"
           strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.adsbygoogleLoaded = true;
+              console.log('AdSense 스크립트 로드 완료');
+            `
+          }}
         />
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
