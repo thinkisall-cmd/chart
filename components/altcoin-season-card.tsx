@@ -13,6 +13,9 @@ interface AltcoinSeasonData {
   lastUpdated?: string;
   error?: string;
   note?: string;
+  source?: string;
+  outperformingCoins?: number;
+  totalAltcoins?: number;
 }
 
 export default function AltcoinSeasonCard() {
@@ -110,7 +113,7 @@ export default function AltcoinSeasonCard() {
           {/* 지수 */}
           <div className="text-center">
             <div className={`text-2xl font-bold ${getIndexColor(data.index)}`}>
-              {data.index}
+              {data.index ?? '-'}
             </div>
             <div className="text-xs text-muted-foreground">지수</div>
           </div>
@@ -129,7 +132,7 @@ export default function AltcoinSeasonCard() {
           {/* BTC 도미넌스 */}
           <div className="text-center">
             <div className="text-lg font-semibold">
-              {data.btcDominance.toFixed(1)}%
+              {data.btcDominance ? data.btcDominance.toFixed(1) : '-'}%
             </div>
             <div className="text-xs text-muted-foreground">BTC 도미넌스</div>
           </div>
@@ -142,12 +145,12 @@ export default function AltcoinSeasonCard() {
           {/* 설명 */}
           <div className="text-center">
             <div className="text-xs text-muted-foreground">
-              {data.index >= 75 ? '🚀 알트 강세' :
-               data.index <= 25 ? '₿ 비트 강세' :
-               '⚖️ 균형'}
+              {data.statusEmoji || '📊'} {data.status || '중립'}
             </div>
             <div className="text-xs text-muted-foreground opacity-75">
-              90일 기준
+              {data.outperformingCoins && data.totalAltcoins ?
+                `${data.outperformingCoins}/${data.totalAltcoins}개 알트` :
+                '90일 기준'}
             </div>
           </div>
         </div>
@@ -164,7 +167,7 @@ export default function AltcoinSeasonCard() {
                 data.index >= 75 ? 'bg-green-500' :
                 data.index <= 25 ? 'bg-orange-500' : 'bg-gray-400'
               }`}
-              style={{ width: `${data.index}%` }}
+              style={{ width: `${data.index ?? 0}%` }}
             />
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -177,17 +180,24 @@ export default function AltcoinSeasonCard() {
         {/* 업데이트 시간 및 알림 */}
         <div className="mt-3 pt-2 border-t text-xs text-muted-foreground">
           <div className="flex items-center justify-between">
-            <span>
-              {data.lastUpdated ?
-                `업데이트: ${new Date(data.lastUpdated).toLocaleString('ko-KR', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}` :
-                '업데이트 시간 불명'
-              }
-            </span>
+            <div className="flex flex-col">
+              <span>
+                {data.lastUpdated ?
+                  `업데이트: ${new Date(data.lastUpdated).toLocaleString('ko-KR', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}` :
+                  '업데이트 시간 불명'
+                }
+              </span>
+              {data.source && (
+                <span className="text-xs opacity-75">
+                  데이터: {data.source}
+                </span>
+              )}
+            </div>
             {(data.error || data.note) && (
               <span className="text-yellow-600 text-xs">
                 ⚠️ {data.error || data.note}
