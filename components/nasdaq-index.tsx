@@ -24,6 +24,7 @@ const NasdaqTradingView: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    console.log('NasdaqTradingView component mounting...');
     setIsClient(true);
   }, []);
 

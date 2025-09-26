@@ -17,13 +17,16 @@ export default function BitcoinPrice() {
   useEffect(() => {
     const fetchBitcoinPrice = async () => {
       try {
+        console.log('Fetching Bitcoin price...');
         const response = await fetch('/api/bitcoin-price');
+        console.log('Response status:', response.status);
 
         if (!response.ok) {
-          throw new Error('Bitcoin price API 요청 실패');
+          throw new Error(`HTTP ${response.status}: Bitcoin price API 요청 실패`);
         }
 
         const result = await response.json();
+        console.log('API Response:', result);
 
         if (result.success && result.data) {
           setBitcoinData({
@@ -32,12 +35,13 @@ export default function BitcoinPrice() {
             last_updated: result.data.last_updated
           });
           setError(null);
+          console.log('Bitcoin data updated successfully');
         } else {
           throw new Error(result.error || 'API 응답 오류');
         }
       } catch (err) {
         console.error('Bitcoin price fetch error:', err);
-        setError('가격 로드 실패');
+        setError(`가격 로드 실패: ${err instanceof Error ? err.message : '알 수 없는 오류'}`);
       } finally {
         setLoading(false);
       }
