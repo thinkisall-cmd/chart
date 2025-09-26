@@ -57,44 +57,34 @@ export function SiteHeader() {
       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.addEventListener('appinstalled', handleAppInstalled);
 
-      // 개발 환경이거나 PWA 조건을 확인
-      const isDev =
-        process.env.NODE_ENV === "development" ||
-        location.hostname === "localhost";
+      // PWA 조건 확인
+      const checkPWAConditions = () => {
+        const hasServiceWorker = 'serviceWorker' in navigator;
+        const isHTTPS = location.protocol === 'https:' || location.hostname === 'localhost';
+        const hasManifest = document.querySelector('link[rel="manifest"]');
 
-      if (isDev) {
-        console.log("개발 환경 - 설치 버튼 표시");
-        setShowInstallButton(true);
-        setDebugInfo("개발 모드");
-      } else {
-        // 프로덕션에서 PWA 조건 확인
-        const checkPWAConditions = () => {
-          const hasServiceWorker = 'serviceWorker' in navigator;
-          const isHTTPS = location.protocol === 'https:';
-          const hasManifest = document.querySelector('link[rel="manifest"]');
+        console.log('PWA 조건 확인:', {
+          hasServiceWorker,
+          isHTTPS,
+          hasManifest: !!hasManifest
+        });
 
-          console.log('PWA 조건 확인:', {
-            hasServiceWorker,
-            isHTTPS,
-            hasManifest: !!hasManifest
-          });
+        setDebugInfo(`조건: SW=${hasServiceWorker} HTTPS=${isHTTPS} MF=${!!hasManifest}`);
 
-          setDebugInfo(`조건: SW=${hasServiceWorker} HTTPS=${isHTTPS} MF=${!!hasManifest}`);
+        // PWA 조건이 충족되면 일정 시간 후 버튼 표시 (beforeinstallprompt 이벤트가 안 올 경우 대비)
+        if (hasServiceWorker && isHTTPS && hasManifest) {
+          const delay = location.hostname === 'localhost' ? 2000 : 3000;
+          setTimeout(() => {
+            if (!(window as any).deferredPrompt) {
+              console.log('beforeinstallprompt 이벤트가 없어서 강제 표시');
+              setShowInstallButton(true);
+              setDebugInfo('설치 가능');
+            }
+          }, delay);
+        }
+      };
 
-          // PWA 조건이 충족되면 일정 시간 후 버튼 표시 (beforeinstallprompt 이벤트가 안 올 경우 대비)
-          if (hasServiceWorker && isHTTPS && hasManifest) {
-            setTimeout(() => {
-              if (!(window as any).deferredPrompt) {
-                console.log('beforeinstallprompt 이벤트가 없어서 강제 표시');
-                setShowInstallButton(true);
-                setDebugInfo('강제 표시');
-              }
-            }, 5000);
-          }
-        };
-
-        checkPWAConditions();
-      }
+      checkPWAConditions();
 
       return () => {
         window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -107,9 +97,16 @@ export function SiteHeader() {
     const deferredPrompt = (window as any).deferredPrompt;
 
     if (!deferredPrompt) {
-      alert(
-        "PWA 설치 프롬프트를 사용할 수 없습니다.\n\n다음을 확인해주세요:\n- Chrome/Edge 브라우저 사용\n- 이미 설치되지 않음\n- HTTPS 환경\n- Service Worker 등록됨\n\n또는 브라우저 메뉴에서 '앱 설치' 옵션을 찾아보세요."
-      );
+      // 더 쉬운 설치 안내
+      const userAgent = navigator.userAgent.toLowerCase();
+
+      if (userAgent.includes('chrome') || userAgent.includes('edge')) {
+        alert('📱 간편 설치!\n\n🔍 주소창 맨 오른쪽을 보세요!\n"설치" 아이콘을 클릭하면 바로 앱 설치됩니다!');
+      } else if (userAgent.includes('safari')) {
+        alert('📱 Safari 설치\n\n📤 공유 버튼 → "홈 화면에 추가" 선택!');
+      } else {
+        alert('📱 앱 설치\n\n브라우저 메뉴에서 "앱 설치"를 찾으세요!');
+      }
       return;
     }
 
@@ -157,11 +154,10 @@ export function SiteHeader() {
           {showInstallButton && (
             <Button
               onClick={handleInstallClick}
-              variant="outline"
               size="sm"
-              className="hidden sm:flex items-center gap-2 text-xs"
+              className="hidden sm:flex items-center gap-2 text-xs bg-green-600 hover:bg-green-700 text-white border-0 animate-pulse hover:animate-none"
             >
-              <Download className="h-3 w-3" />앱 설치
+              <Download className="h-3 w-3" />무료 앱 설치
             </Button>
           )}
         </div>
