@@ -15,6 +15,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FullPageSkeleton, CoinListSkeleton, ChartSkeleton, SectorsSkeleton } from "@/components/ui/loading-skeleton";
+import { Watchlist, WatchlistButton } from "@/components/watchlist";
+import { WebVitalsMonitor } from "@/components/web-vitals-monitor";
 import {
   RefreshCw,
   TrendingUp,
@@ -38,20 +41,18 @@ import { SiteHeader } from "@/components/site-header";
 import dynamic from "next/dynamic";
 
 const SectorsPreview = dynamic(() => import("@/components/sectors-preview"), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-32 rounded"></div>,
+  loading: () => <SectorsSkeleton />,
 });
 
 const ExchangeVolatility = dynamic(
   () => import("@/components/exchange-volatility"),
   {
-    loading: () => (
-      <div className="animate-pulse bg-gray-200 h-40 rounded"></div>
-    ),
+    loading: () => <ChartSkeleton />,
   }
 );
 
 const NasdaqTradingView = dynamic(() => import("@/components/nasdaq-index"), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded"></div>,
+  loading: () => <ChartSkeleton />,
 });
 
 // Safe imports with fallbacks
@@ -197,6 +198,37 @@ export default function CryptoTracker() {
 
   // 마커 필터링 상태
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
+
+  // 워치리스트 상태
+  const [watchlist, setWatchlist] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedWatchlist = localStorage.getItem("crypto-watchlist");
+    if (savedWatchlist) {
+      try {
+        const parsed = JSON.parse(savedWatchlist);
+        setWatchlist(parsed.map((item: any) => item.symbol));
+      } catch (error) {
+        console.error("Failed to parse watchlist:", error);
+      }
+    }
+  }, []);
+
+  const toggleWatchlist = (symbol: string) => {
+    const newWatchlist = watchlist.includes(symbol)
+      ? watchlist.filter(s => s !== symbol)
+      : [...watchlist, symbol];
+
+    setWatchlist(newWatchlist);
+
+    const watchlistData = newWatchlist.map(s => ({
+      symbol: s,
+      koreanName: getKoreanName(s),
+      addedAt: Date.now()
+    }));
+
+    localStorage.setItem("crypto-watchlist", JSON.stringify(watchlistData));
+  };
 
   // 필터 토글 함수
   const toggleFilter = (filterKey: string) => {
@@ -689,39 +721,7 @@ export default function CryptoTracker() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-48" />
-              </div>
-              <Skeleton className="h-10 w-24" />
-            </div>
-
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-32" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
+    return <FullPageSkeleton />;
   }
 
   if (error) {
@@ -803,6 +803,17 @@ export default function CryptoTracker() {
                 <span className="sm:hidden">섹터</span>
               </Button>
             </Link>
+            <Link href="/chart-trading">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs bg-transparent px-2 py-1.5"
+              >
+                <TrendingUpIcon className="w-3 h-3 mr-1" />
+                <span className="hidden sm:inline">차트 트레이딩</span>
+                <span className="sm:hidden">차트</span>
+              </Button>
+            </Link>
             <Button
               onClick={() => window.location.reload()}
               disabled={loading}
@@ -855,6 +866,18 @@ export default function CryptoTracker() {
         <div className="mb-3 sm:mb-4">
           <ResponsiveAd />
         </div>
+
+        {/* 워치리스트 */}
+        <Watchlist
+          className="mb-4 sm:mb-6"
+          coinData={coinData}
+          realTimeChangePercents={realTimeChangePercents}
+          getKoreanName={getKoreanName}
+          formatPrice={formatPrice}
+        />
+
+        {/* Web Vitals 모니터 */}
+        <WebVitalsMonitor className="mb-4 sm:mb-6" />
 
         {/* 알트코인 시즌 지수 */}
         <AltcoinSeasonCard />
@@ -1221,11 +1244,18 @@ export default function CryptoTracker() {
                           {globalIndex}
                         </TableCell>
                         <TableCell>
-                          <div className="space-y-1">
-                            <div className="font-semibold">{koreanName}</div>
-                            <div className="text-sm text-muted-foreground font-mono">
-                              {symbol}
+                          <div className="flex items-center gap-2">
+                            <div className="space-y-1 flex-1">
+                              <div className="font-semibold">{koreanName}</div>
+                              <div className="text-sm text-muted-foreground font-mono">
+                                {symbol}
+                              </div>
                             </div>
+                            <WatchlistButton
+                              symbol={symbol}
+                              isInWatchlist={watchlist.includes(symbol)}
+                              onToggle={toggleWatchlist}
+                            />
                           </div>
                         </TableCell>
                         <TableCell>
@@ -1331,6 +1361,11 @@ export default function CryptoTracker() {
                           <h3 className="font-semibold text-sm sm:text-base truncate">
                             {koreanName}
                           </h3>
+                          <WatchlistButton
+                            symbol={symbol}
+                            isInWatchlist={watchlist.includes(symbol)}
+                            onToggle={toggleWatchlist}
+                          />
                         </div>
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-xs text-muted-foreground font-mono">

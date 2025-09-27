@@ -13,7 +13,10 @@
       "WebFetch(domain:polygon.io)",
       "WebSearch",
       "Bash(del pnpm-lock.yaml)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(npx tsc:*)",
+      "Bash(del appchart-tradingpage-test.tsx)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

@@ -106,12 +106,31 @@ export default function AdSense({
 export function BannerAd({ className }: { className?: string }) {
   return (
     <div className={`w-full flex justify-center ${className}`}>
-      <AdSense
-        adSlot="4888258657" // 배너 광고 슬롯
-        adFormat="auto"
-        className="w-full max-w-4xl"
-        style={{ display: "block", minHeight: "90px" }}
-      />
+      {/* 고정된 크기 컨테이너로 CLS 방지 */}
+      <div
+        className="relative w-full max-w-4xl bg-gray-50 border border-gray-100 rounded-lg overflow-hidden"
+        style={{
+          minHeight: "90px",
+          height: "90px"
+        }}
+      >
+        {/* 로딩 플레이스홀더 */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-xs text-gray-400">광고 로딩 중...</div>
+        </div>
+
+        <AdSense
+          adSlot="4888258657" // 배너 광고 슬롯
+          adFormat="auto"
+          className="absolute inset-0 w-full h-full"
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "transparent"
+          }}
+        />
+      </div>
     </div>
   )
 }
@@ -142,22 +161,33 @@ export function SidebarAd({ className }: { className?: string }) {
   )
 }
 
-// 반응형 광고 (추천) - 로딩 상태 개선
+// 반응형 광고 (추천) - CLS 개선
 export function ResponsiveAd({ className }: { className?: string }) {
   return (
     <div className={`w-full ${className}`}>
-      {/* 광고 로딩 중일 때 placeholder */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gray-50 animate-pulse rounded flex items-center justify-center min-h-[100px]">
+      {/* 고정된 컨테이너로 CLS 방지 */}
+      <div
+        className="relative w-full bg-gray-50 border border-gray-100 rounded-lg overflow-hidden"
+        style={{
+          minHeight: "100px",
+          aspectRatio: "16/9",
+          maxHeight: "250px"
+        }}
+      >
+        {/* 로딩 플레이스홀더 */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-xs text-gray-400">광고 로딩 중...</div>
         </div>
+
+        {/* 실제 광고 */}
         <AdSense
           adSlot="6449748843" // 반응형 광고 슬롯
           adFormat="auto"
-          className="w-full relative z-10"
+          className="absolute inset-0 w-full h-full"
           style={{
             display: "block",
-            minHeight: "100px",
+            width: "100%",
+            height: "100%",
             backgroundColor: "transparent"
           }}
         />
